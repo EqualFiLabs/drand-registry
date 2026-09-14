@@ -110,19 +110,23 @@ library QuicknetVerifier {
         view
         returns (BLS2.PointG1 memory point)
     {
-        if (signature.length == COMPRESSED_SIGNATURE_LENGTH) {
+        if (compressedEncodingForLength(signature.length)) {
             point = _decodeCompressedSignature(signature);
-        } else if (signature.length == UNCOMPRESSED_SIGNATURE_LENGTH) {
-            point = BLS2.g1Unmarshal(signature);
         } else {
-            revert UnsupportedSignatureLength(signature.length);
+            point = decodeUncompressedSignature(signature);
         }
 
-        _validateG1Point(point);
+        validateG1Point(point);
+    }
+
+    function compressedEncodingForLength(uint256 length) internal pure returns (bool compressed) {
+        if (length == COMPRESSED_SIGNATURE_LENGTH) return true;
+        if (length == UNCOMPRESSED_SIGNATURE_LENGTH) return false;
+        revert UnsupportedSignatureLength(length);
     }
 
     function hashMessageToPoint(bytes32 digest) internal view returns (BLS2.PointG1 memory point) {
-        bytes memory uniform = BLS2.expandMsg(bytes(DST), abi.encodePacked(digest), 128);
+        bytes memory uniform = BLS2.expandMsg(domainSeparationTag(), abi.encodePacked(digest), 128);
         bytes memory firstField = _uniformChunk(uniform, 0);
         bytes memory secondField = _uniformChunk(uniform, 64);
 
@@ -131,10 +135,10 @@ library QuicknetVerifier {
         bytes memory firstPoint = checkedStaticcall(BLS12_MAP_FP_TO_G1, reducedFirst, 128);
         bytes memory secondPoint = checkedStaticcall(BLS12_MAP_FP_TO_G1, reducedSecond, 128);
         bytes memory encodedPoint =
-            checkedStaticcall(BLS12_G1ADD, bytes.concat(firstPoint, secondPoint), 128);
+            checkedStaticcall(BLS12_G1ADD, g1AddInput(firstPoint, secondPoint), 128);
 
-        point = _decodePrecompileG1(encodedPoint);
-        _validateG1Point(point);
+        point = decodePrecompileG1(encodedPoint);
+        validateG1Point(point);
     }
 
     /// @notice Returns the immutable Quicknet G2 public key.
@@ -149,6 +153,11 @@ library QuicknetVerifier {
             0x0e5db2b6bfbb01c867749cadffca88b3,
             0x6c24f3012ba09fc4d3022c5c37dce0f977d3adb5d183c7477c442b1f04515273
         );
+    }
+
+    /// @notice Returns the exact Quicknet hash-to-curve domain separation tag.
+    function domainSeparationTag() internal pure returns (bytes memory) {
+        return bytes(DST);
     }
 
     /// @notice Executes a static call and requires the exact expected return-data length.
@@ -173,19 +182,30 @@ library QuicknetVerifier {
             actualLength := returndatasize()
         }
 
+        validatePrecompileOutcome(target, success, actualLength, outputLength);
+    }
+
+    function validatePrecompileOutcome(
+        uint256 target,
+        bool success,
+        uint256 actualLength,
+        uint256 expectedLength
+    ) internal pure {
         if (!success) revert PrecompileCallFailed(target);
-        if (actualLength != outputLength) {
+        if (actualLength != expectedLength) {
             revert InvalidPrecompileReturnData(target, actualLength);
         }
     }
 
-    function _decodeCompressedSignature(bytes calldata signature)
-        private
-        view
-        returns (BLS2.PointG1 memory point)
+    function parseCompressedSignature(bytes calldata signature)
+        internal
+        pure
+        returns (uint128 xHi, uint256 xLo, bool selectSmallerY)
     {
-        uint128 xHi;
-        uint256 xLo;
+        if (signature.length != COMPRESSED_SIGNATURE_LENGTH) {
+            revert UnsupportedSignatureLength(signature.length);
+        }
+
         assembly ("memory-safe") {
             xHi := shr(128, calldataload(signature.offset))
             xLo := calldataload(add(signature.offset, 16))
@@ -196,37 +216,83 @@ library QuicknetVerifier {
         uint8 flags = uint8(xHi >> 120);
         if (flags & 0x80 == 0) revert InvalidCompressedEncoding();
         if (flags & 0x40 != 0) revert PointAtInfinity();
-        bool selectLargerY = flags & 0x20 == 0;
+        selectSmallerY = flags & 0x20 == 0;
 
         xHi &= 0x1fffffffffffffffffffffffffffffff;
-        if (!_isCanonicalFieldElement(xHi, xLo)) revert InvalidG1Point();
+        if (!isCanonicalFieldElement(xHi, xLo)) revert InvalidG1Point();
+    }
 
-        bytes memory x = abi.encodePacked(uint256(xHi), xLo);
-        (uint128 rhsHi, uint256 rhsLo) = _decodeFieldElement(_modExp(x, hex"03"));
-        unchecked {
-            uint256 priorLo = rhsLo;
-            rhsLo += 4;
-            if (rhsLo < priorLo) rhsHi += 1;
+    function decodeUncompressedSignature(bytes calldata signature)
+        internal
+        pure
+        returns (BLS2.PointG1 memory point)
+    {
+        if (signature.length != UNCOMPRESSED_SIGNATURE_LENGTH) {
+            revert UnsupportedSignatureLength(signature.length);
         }
 
-        bytes memory exponent = abi.encodePacked(uint256(SQRT_EXPONENT_HI), SQRT_EXPONENT_LO);
-        (uint128 yHi, uint256 yLo) =
-            _decodeFieldElement(_modExp(abi.encodePacked(uint256(rhsHi), rhsLo), exponent));
+        assembly ("memory-safe") {
+            mstore(point, shr(128, calldataload(signature.offset)))
+            mstore(add(point, 0x20), calldataload(add(signature.offset, 16)))
+            mstore(add(point, 0x40), shr(128, calldataload(add(signature.offset, 48))))
+            mstore(add(point, 0x60), calldataload(add(signature.offset, 64)))
+        }
+        validateG1Point(point);
+    }
 
-        uint128 alternateYHi = FIELD_MODULUS_HI - yHi;
+    function selectY(uint128 yHi, uint256 yLo, bool selectSmallerY)
+        internal
+        pure
+        returns (uint128 selectedHi, uint256 selectedLo)
+    {
+        if (!isCanonicalFieldElement(yHi, yLo)) revert InvalidG1Point();
+
+        uint128 alternateYHi;
         uint256 alternateYLo;
-        unchecked {
-            alternateYLo = FIELD_MODULUS_LO - yLo;
-            if (alternateYLo > FIELD_MODULUS_LO) alternateYHi -= 1;
+        if (yHi != 0 || yLo != 0) {
+            alternateYHi = FIELD_MODULUS_HI - yHi;
+            unchecked {
+                alternateYLo = FIELD_MODULUS_LO - yLo;
+                if (alternateYLo > FIELD_MODULUS_LO) alternateYHi -= 1;
+            }
         }
 
         bool yIsLarger = yHi > alternateYHi || (yHi == alternateYHi && yLo > alternateYLo);
-        if (selectLargerY == yIsLarger) {
-            yHi = alternateYHi;
-            yLo = alternateYLo;
-        }
+        if (selectSmallerY == yIsLarger) return (alternateYHi, alternateYLo);
+        return (yHi, yLo);
+    }
+
+    function _decodeCompressedSignature(bytes calldata signature)
+        private
+        view
+        returns (BLS2.PointG1 memory point)
+    {
+        (uint128 xHi, uint256 xLo, bool selectSmallerY) = parseCompressedSignature(signature);
+
+        bytes memory x = abi.encodePacked(uint256(xHi), xLo);
+        (uint128 rhsHi, uint256 rhsLo) = decodeFieldElement(_modExp(x, hex"03"));
+        (rhsHi, rhsLo) = addCurveB(rhsHi, rhsLo);
+
+        bytes memory exponent = abi.encodePacked(uint256(SQRT_EXPONENT_HI), SQRT_EXPONENT_LO);
+        (uint128 yHi, uint256 yLo) =
+            decodeFieldElement(_modExp(abi.encodePacked(uint256(rhsHi), rhsLo), exponent));
+
+        (yHi, yLo) = selectY(yHi, yLo, selectSmallerY);
 
         point = BLS2.PointG1(xHi, xLo, yHi, yLo);
+    }
+
+    function addCurveB(uint128 valueHi, uint256 valueLo)
+        internal
+        pure
+        returns (uint128 resultHi, uint256 resultLo)
+    {
+        if (!isCanonicalFieldElement(valueHi, valueLo)) revert InvalidG1Point();
+        resultHi = valueHi;
+        unchecked {
+            resultLo = valueLo + 4;
+            if (resultLo < valueLo) resultHi += 1;
+        }
     }
 
     function _verifiedSignaturePoint(uint64 round, bytes calldata signature)
@@ -249,6 +315,17 @@ library QuicknetVerifier {
         BLS2.PointG2 memory pubkey,
         BLS2.PointG1 memory message
     ) private view returns (bool) {
+        bytes memory output = checkedStaticcall(
+            BLS12_PAIRING_CHECK, pairingInput(signature, pubkey, message), 32
+        );
+        return decodePairingResult(output);
+    }
+
+    function pairingInput(
+        BLS2.PointG1 memory signature,
+        BLS2.PointG2 memory pubkey,
+        BLS2.PointG1 memory message
+    ) internal pure returns (bytes memory) {
         uint256[24] memory operands = [
             signature.x_hi,
             signature.x_lo,
@@ -275,7 +352,13 @@ library QuicknetVerifier {
             pubkey.y1_hi,
             pubkey.y1_lo
         ];
-        bytes memory output = checkedStaticcall(BLS12_PAIRING_CHECK, abi.encode(operands), 32);
+        return abi.encode(operands);
+    }
+
+    function decodePairingResult(bytes memory output) internal pure returns (bool) {
+        if (output.length != 32) {
+            revert InvalidPrecompileReturnData(BLS12_PAIRING_CHECK, output.length);
+        }
         uint256 result;
         assembly ("memory-safe") {
             result := mload(add(output, 0x20))
@@ -285,13 +368,28 @@ library QuicknetVerifier {
     }
 
     function _modExp(bytes memory base, bytes memory exponent) private view returns (bytes memory) {
-        bytes memory input = bytes.concat(
+        return checkedStaticcall(MODEXP_ADDRESS, modExpInput(base, exponent), 64);
+    }
+
+    function modExpInput(bytes memory base, bytes memory exponent)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return bytes.concat(
             abi.encode(uint256(64), uint256(exponent.length), uint256(64)),
             base,
             exponent,
             abi.encode(uint256(FIELD_MODULUS_HI), FIELD_MODULUS_LO)
         );
-        return checkedStaticcall(MODEXP_ADDRESS, input, 64);
+    }
+
+    function g1AddInput(bytes memory firstPoint, bytes memory secondPoint)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return bytes.concat(firstPoint, secondPoint);
     }
 
     function _uniformChunk(bytes memory uniform, uint256 offset)
@@ -306,8 +404,8 @@ library QuicknetVerifier {
         }
     }
 
-    function _decodeFieldElement(bytes memory encoded)
-        private
+    function decodeFieldElement(bytes memory encoded)
+        internal
         pure
         returns (uint128 hi, uint256 lo)
     {
@@ -322,8 +420,8 @@ library QuicknetVerifier {
         hi = uint128(hiWord);
     }
 
-    function _decodePrecompileG1(bytes memory encoded)
-        private
+    function decodePrecompileG1(bytes memory encoded)
+        internal
         pure
         returns (BLS2.PointG1 memory point)
     {
@@ -345,17 +443,17 @@ library QuicknetVerifier {
         point = BLS2.PointG1(uint128(xHiWord), xLo, uint128(yHiWord), yLo);
     }
 
-    function _validateG1Point(BLS2.PointG1 memory point) private pure {
+    function validateG1Point(BLS2.PointG1 memory point) internal pure {
         if (
             (point.x_hi == 0 && point.x_lo == 0 && point.y_hi == 0 && point.y_lo == 0)
-                || !_isCanonicalFieldElement(point.x_hi, point.x_lo)
-                || !_isCanonicalFieldElement(point.y_hi, point.y_lo)
+                || !isCanonicalFieldElement(point.x_hi, point.x_lo)
+                || !isCanonicalFieldElement(point.y_hi, point.y_lo)
         ) {
             revert InvalidG1Point();
         }
     }
 
-    function _isCanonicalFieldElement(uint128 hi, uint256 lo) private pure returns (bool) {
+    function isCanonicalFieldElement(uint128 hi, uint256 lo) internal pure returns (bool) {
         return hi < FIELD_MODULUS_HI || (hi == FIELD_MODULUS_HI && lo < FIELD_MODULUS_LO);
     }
 }

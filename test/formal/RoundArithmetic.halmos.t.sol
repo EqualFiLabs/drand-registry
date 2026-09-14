@@ -55,4 +55,19 @@ contract RoundArithmeticHalmosTest is Test {
         assert(encoded.length == 8);
         assert(encodedWord == uint256(round) << 192);
     }
+
+    function check_roundTimeRejectsUnsupportedRound(uint64 round) public view {
+        vm.assume(round == 0 || uint256(round) > MAX_ROUND);
+        try verifier.roundTime(round) returns (uint64) {
+            assert(false);
+        } catch { }
+    }
+
+    function check_firstRoundAfterRejectsWhenNoFutureRound(uint256 timestamp) public view {
+        uint256 lastRoundTime = GENESIS_TIMESTAMP + (MAX_ROUND - 1) * PERIOD;
+        vm.assume(timestamp >= lastRoundTime);
+        try verifier.firstRoundAfter(timestamp) returns (uint64) {
+            assert(false);
+        } catch { }
+    }
 }
