@@ -5,15 +5,18 @@ methods {
 }
 
 /// No non-postSig selector in the compiled runtime can replace an already stored beacon.
-rule storedBeaconImmutableAcrossNonPostSelectors(env e, uint64 round) filtered {
+rule storedBeaconImmutableAcrossNonPostSelectors(
+    env e,
+    method f,
+    calldataarg args,
+    uint64 round
+) filtered {
     f -> f.selector != sig:postSig(uint64,bytes).selector
 } {
     require hasSig(round);
 
     bytes32 storedRandomness = randomnessOf(round);
     uint64 storedAt = postedAt(round);
-    method f;
-    calldataarg args;
     f@withrevert(e, args);
 
     assert hasSig(round);
@@ -22,13 +25,16 @@ rule storedBeaconImmutableAcrossNonPostSelectors(env e, uint64 round) filtered {
 }
 
 /// The compiled ABI has no state-creating entry point other than postSig.
-rule onlyPostSigCanCreateBeacon(env e, uint64 observedRound) filtered {
+rule onlyPostSigCanCreateBeacon(
+    env e,
+    method f,
+    calldataarg args,
+    uint64 observedRound
+) filtered {
     f -> f.selector != sig:postSig(uint64,bytes).selector
 } {
     require !hasSig(observedRound);
 
-    method f;
-    calldataarg args;
     f@withrevert(e, args);
 
     assert !hasSig(observedRound);
