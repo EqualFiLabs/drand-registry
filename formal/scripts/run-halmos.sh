@@ -6,7 +6,7 @@ mkdir -p "$result_dir"
 
 set +e
 halmos \
-  --match-contract '^(RoundArithmeticHalmosTest|RegistryCacheHalmosTest|QuicknetTransformationsHalmosTest)$' \
+  --match-contract '^(RoundArithmeticHalmosTest|RegistryCacheHalmosTest|RegistryRuntimeHalmosTest|QuicknetTransformationsHalmosTest)$' \
   --solver z3 \
   --solver-timeout-branching 0 \
   --solver-timeout-assertion 0 \

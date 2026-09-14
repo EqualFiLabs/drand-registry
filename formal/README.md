@@ -81,11 +81,11 @@ Halmos:
 - `check_firstWriteStoresExactly`
 - `check_duplicateCannotReplace`
 - `check_distinctRoundsRemainIsolated`
+- `check_duplicateSubmissionIsNoOpOnRuntime`
 
 Certora production runtime:
 
-- `duplicateSubmissionIsNoOp`
-- `storedBeaconImmutableAcrossExternalCalls`
+- `storedBeaconImmutableAcrossNonPostSelectors`
 - `onlyPostSigCanCreateBeacon`
 
 Certora state transition:
