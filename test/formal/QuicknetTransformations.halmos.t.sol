@@ -2,6 +2,7 @@
 pragma solidity 0.8.30;
 
 import { Test } from "forge-std/Test.sol";
+import { BLS2 } from "bls-solidity/libraries/BLS2.sol";
 import {
     QuicknetTransformationHarness
 } from "../../formal/harness/QuicknetTransformationHarness.sol";
@@ -11,6 +12,9 @@ contract QuicknetTransformationsHalmosTest is Test {
     uint256 private constant FIELD_MODULUS_LO =
         0x64774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab;
     uint128 private constant X_MASK = 0x1fffffffffffffffffffffffffffffff;
+    uint128 private constant SQRT_EXPONENT_HI = 0x0680447a8e5ff9a692c6e9ed90d2eb35;
+    uint256 private constant SQRT_EXPONENT_LO =
+        0xd91dd2e13ce144afd9cc34a83dac3d8907aaffffac54ffffee7fbfffffffeaab;
 
     bytes32 private constant QUICKNET_DST_HASH =
         0x506c45fcc1097216a58cc52cb771a3c6a8967abf4d42d2928827047c5412745e;
@@ -99,6 +103,57 @@ contract QuicknetTransformationsHalmosTest is Test {
         );
     }
 
+    function check_equivalentEncodingsNormalizeIdentically(
+        uint128 encodedHi,
+        uint256 xLo,
+        uint128 rootHi,
+        uint256 rootLo
+    ) public view {
+        vm.assume(encodedHi & (uint128(1) << 127) != 0);
+        vm.assume(encodedHi & (uint128(1) << 126) == 0);
+        uint128 expectedXHi = encodedHi & X_MASK;
+        vm.assume(verifier.isCanonicalFieldElement(expectedXHi, xLo));
+        vm.assume(verifier.isCanonicalFieldElement(rootHi, rootLo));
+
+        (uint128 parsedXHi, uint256 parsedXLo, bool selectSmallerY) =
+            verifier.parseCompressed(abi.encodePacked(encodedHi, xLo));
+        (uint128 selectedYHi, uint256 selectedYLo) =
+            verifier.selectY(rootHi, rootLo, selectSmallerY);
+        vm.assume(parsedXHi != 0 || parsedXLo != 0 || selectedYHi != 0 || selectedYLo != 0);
+
+        (uint128 uxHi, uint256 uxLo, uint128 uyHi, uint256 uyLo) = verifier.decodeUncompressed(
+            abi.encodePacked(parsedXHi, parsedXLo, selectedYHi, selectedYLo)
+        );
+        assert(
+            verifier.normalizedPointHash(parsedXHi, parsedXLo, selectedYHi, selectedYLo)
+                == verifier.normalizedPointHash(uxHi, uxLo, uyHi, uyLo)
+        );
+    }
+
+    function check_uncompressedInfinityReverts() public view {
+        try verifier.decodeUncompressed(new bytes(96)) returns (
+            uint128, uint256, uint128, uint256
+        ) {
+            assert(false);
+        } catch { }
+    }
+
+    function check_nonCanonicalUncompressedXReverts(uint256 xLo) public view {
+        vm.assume(xLo >= FIELD_MODULUS_LO);
+        bytes memory signature = abi.encodePacked(FIELD_MODULUS_HI, xLo, uint128(0), uint256(1));
+        try verifier.decodeUncompressed(signature) returns (uint128, uint256, uint128, uint256) {
+            assert(false);
+        } catch { }
+    }
+
+    function check_nonCanonicalUncompressedYReverts(uint256 yLo) public view {
+        vm.assume(yLo >= FIELD_MODULUS_LO);
+        bytes memory signature = abi.encodePacked(uint128(0), uint256(1), FIELD_MODULUS_HI, yLo);
+        try verifier.decodeUncompressed(signature) returns (uint128, uint256, uint128, uint256) {
+            assert(false);
+        } catch { }
+    }
+
     function check_decompressionSignSelection(uint128 yHi, uint256 yLo) public view {
         vm.assume(verifier.isCanonicalFieldElement(yHi, yLo));
 
@@ -170,6 +225,130 @@ contract QuicknetTransformationsHalmosTest is Test {
         assert(encodedExponent == 3);
         assert(modulusHi == FIELD_MODULUS_HI);
         assert(modulusLo == FIELD_MODULUS_LO);
+    }
+
+    function check_modExpSquareRootCalldata(uint128 baseHi, uint256 baseLo) public view {
+        bytes memory input = verifier.modExpInput(
+            abi.encode(uint256(baseHi), baseLo),
+            abi.encode(uint256(SQRT_EXPONENT_HI), SQRT_EXPONENT_LO)
+        );
+        uint256 baseLength;
+        uint256 exponentLength;
+        uint256 modulusLength;
+        uint256 encodedBaseHi;
+        uint256 encodedBaseLo;
+        uint256 exponentHi;
+        uint256 exponentLo;
+        uint256 modulusHi;
+        uint256 modulusLo;
+        assembly ("memory-safe") {
+            baseLength := mload(add(input, 0x20))
+            exponentLength := mload(add(input, 0x40))
+            modulusLength := mload(add(input, 0x60))
+            encodedBaseHi := mload(add(input, 0x80))
+            encodedBaseLo := mload(add(input, 0xa0))
+            exponentHi := mload(add(input, 0xc0))
+            exponentLo := mload(add(input, 0xe0))
+            modulusHi := mload(add(input, 0x100))
+            modulusLo := mload(add(input, 0x120))
+        }
+
+        assert(input.length == 288);
+        assert(baseLength == 64);
+        assert(exponentLength == 64);
+        assert(modulusLength == 64);
+        assert(encodedBaseHi == baseHi);
+        assert(encodedBaseLo == baseLo);
+        assert(exponentHi == SQRT_EXPONENT_HI);
+        assert(exponentLo == SQRT_EXPONENT_LO);
+        assert(modulusHi == FIELD_MODULUS_HI);
+        assert(modulusLo == FIELD_MODULUS_LO);
+    }
+
+    function check_g1AdditionCalldata(
+        uint256 firstXHi,
+        uint256 firstXLo,
+        uint256 firstYHi,
+        uint256 firstYLo,
+        uint256 secondXHi,
+        uint256 secondXLo,
+        uint256 secondYHi,
+        uint256 secondYLo
+    ) public view {
+        bytes memory input = verifier.g1AddInput(
+            abi.encode(firstXHi, firstXLo, firstYHi, firstYLo),
+            abi.encode(secondXHi, secondXLo, secondYHi, secondYLo)
+        );
+        assert(input.length == 256);
+        assert(
+            keccak256(input)
+                == keccak256(
+                    abi.encode(
+                        firstXHi,
+                        firstXLo,
+                        firstYHi,
+                        firstYLo,
+                        secondXHi,
+                        secondXLo,
+                        secondYHi,
+                        secondYLo
+                    )
+                )
+        );
+    }
+
+    function check_pairingPointCalldata(
+        uint128 signatureXHi,
+        uint256 signatureYLo,
+        uint128 messageXHi,
+        uint256 messageYLo
+    ) public view {
+        BLS2.PointG1 memory signature = BLS2.PointG1(signatureXHi, 0, 0, signatureYLo);
+        BLS2.PointG1 memory message = BLS2.PointG1(messageXHi, 0, 0, messageYLo);
+        bytes memory input = verifier.pairingInput(signature, message);
+
+        uint256 firstSignatureWord;
+        uint256 lastSignatureWord;
+        uint256 firstMessageWord;
+        uint256 lastMessageWord;
+        assembly ("memory-safe") {
+            firstSignatureWord := mload(add(input, 0x20))
+            lastSignatureWord := mload(add(input, 0x80))
+            firstMessageWord := mload(add(input, 0x1a0))
+            lastMessageWord := mload(add(input, 0x200))
+        }
+
+        assert(input.length == 768);
+        assert(firstSignatureWord == signatureXHi);
+        assert(lastSignatureWord == signatureYLo);
+        assert(firstMessageWord == messageXHi);
+        assert(lastMessageWord == messageYLo);
+    }
+
+    function check_pairingTrustAnchorCalldata() public view {
+        BLS2.PointG1 memory emptyPoint = BLS2.PointG1(0, 0, 0, 0);
+        bytes memory input = verifier.pairingInput(emptyPoint, emptyPoint);
+        uint256 firstNegativeGeneratorWord;
+        uint256 lastNegativeGeneratorWord;
+        uint256 firstPublicKeyWord;
+        uint256 lastPublicKeyWord;
+        assembly ("memory-safe") {
+            firstNegativeGeneratorWord := mload(add(input, 0xa0))
+            lastNegativeGeneratorWord := mload(add(input, 0x180))
+            firstPublicKeyWord := mload(add(input, 0x220))
+            lastPublicKeyWord := mload(add(input, 0x300))
+        }
+
+        assert(input.length == 768);
+        assert(firstNegativeGeneratorWord == 0x024aa2b2f08f0a91260805272dc51051);
+        assert(
+            lastNegativeGeneratorWord
+                == 0x993923066dddaf1040bc3ff59f825c78df74f2d75467e25e0f55f8a00fa030ed
+        );
+        assert(firstPublicKeyWord == 0x0d1fec758c921cc22b0e17e63aaf4bcb);
+        assert(
+            lastPublicKeyWord == 0x02d163700a61bc224ededd8e63aef7be1aaf8e93d7a9718b047ccddb3eb5d68b
+        );
     }
 
     function check_precompileSuccessGate(uint256 target, uint256 expectedLength) public view {
