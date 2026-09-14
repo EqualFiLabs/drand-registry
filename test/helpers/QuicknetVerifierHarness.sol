@@ -29,6 +29,10 @@ contract QuicknetVerifierHarness {
         return QuicknetVerifier.messageHash(round);
     }
 
+    function roundMessage(uint64 round) external pure returns (bytes memory) {
+        return QuicknetVerifier.roundMessage(round);
+    }
+
     function decodeSignature(bytes calldata signature) external view returns (bytes memory) {
         return BLS2.g1Marshal(QuicknetVerifier.decodeSignature(signature));
     }

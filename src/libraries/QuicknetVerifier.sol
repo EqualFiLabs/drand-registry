@@ -97,7 +97,12 @@ library QuicknetVerifier {
 
     function messageHash(uint64 round) internal pure returns (bytes32) {
         if (round == 0) revert InvalidQuicknetRound(round);
-        return sha256(abi.encodePacked(round));
+        return sha256(roundMessage(round));
+    }
+
+    function roundMessage(uint64 round) internal pure returns (bytes memory) {
+        if (round == 0) revert InvalidQuicknetRound(round);
+        return abi.encodePacked(round);
     }
 
     function decodeSignature(bytes calldata signature)

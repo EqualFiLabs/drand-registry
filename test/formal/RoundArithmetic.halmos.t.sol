@@ -46,6 +46,13 @@ contract RoundArithmeticHalmosTest is Test {
 
     function check_roundMessageSerialization(uint64 round) public view {
         vm.assume(round > 0);
-        assert(verifier.messageHash(round) == sha256(abi.encodePacked(round)));
+        bytes memory encoded = verifier.roundMessage(round);
+        uint256 encodedWord;
+        assembly ("memory-safe") {
+            encodedWord := mload(add(encoded, 0x20))
+        }
+
+        assert(encoded.length == 8);
+        assert(encodedWord == uint256(round) << 192);
     }
 }
