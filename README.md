@@ -6,7 +6,7 @@ The contract is shared infrastructure. It contains no Lottery-specific logic, ow
 
 ## Status
 
-The repository is under active development. The stable consumer interface and Quicknet verification layer are present; persistent Registry behavior is delivered in a subsequent reviewed change. Do not deploy the current branch.
+The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. Release still requires the complete adversarial/vector suite, formal-verification package, and target-chain conformance evidence described in the repository guidance.
 
 ## Development
 
