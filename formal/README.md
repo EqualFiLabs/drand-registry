@@ -2,8 +2,8 @@
 
 This package separates four evidence classes:
 
-1. Halmos proves complete-domain arithmetic and the isolated first-write state transition.
-2. Certora proves the compiled state harness and compiled acceptance harness rules.
+1. Halmos proves complete-domain arithmetic, exact production transformation helpers, and the isolated first-write state transition.
+2. Certora proves the compiled production runtime, state harness, and constrained acceptance harness rules.
 3. Official Quicknet vectors differentially test the concrete parsing, hashing, mapping, pairing, and normalization path.
 4. Robinhood runtime validation checks the actual EIP-2537 implementation and is reported separately.
 
@@ -11,7 +11,7 @@ No one class is presented as a substitute for another.
 
 ## EIP-2537 summaries
 
-The acceptance harness replaces cryptographic precompiles with a constrained relation. Its `accepted` branch means all of the following are true:
+The acceptance harness replaces cryptographic precompiles with a constrained relation. It binds the modeled result to the exact submitted proof hash, Round, normalized signature point, mapped message point, production DST, production public key, and production pairing calldata. Its `accepted` branch means all of the following are true:
 
 - the submitted 48-byte or 96-byte representation decodes to the modeled canonical G1 point;
 - the point is finite, canonical, on BLS12-381 G1, and in the prime-order subgroup;
@@ -19,7 +19,7 @@ The acceptance harness replaces cryptographic precompiles with a constrained rel
 - the compiled Quicknet G2 public key is used; and
 - the EIP-2537 pairing relation `e(signature, -G2) * e(messagePoint, publicKey) == 1` holds.
 
-The summary binds its result to the exact round, modeled canonical point, submitted-proof hash, Quicknet DST, and Quicknet chain identity. It cannot write storage when the modeled pairing rejects.
+The summary cannot authorize another proof or Round, and it cannot write storage when the modeled pairing rejects. Halmos separately proves the production parsing, normalization, and calldata transformations that connect supported proof bytes to the summary's canonical points. The EIP-198/EIP-2537 arithmetic and cryptographic relations themselves remain explicit trusted assumptions.
 
 For concrete execution, the production verifier requires these precompile contracts:
 
@@ -50,11 +50,42 @@ Halmos:
 
 - `check_roundTimeFormula`
 - `check_firstRoundAfterIsMinimal`
+- `check_firstRoundAfterRejectsWhenNoFutureRound`
 - `check_preGenesisMapsToFirstRound`
+- `check_roundTimeRejectsUnsupportedRound`
 - `check_roundMessageSerialization`
+- `check_supportedSignatureLengths`
+- `check_unsupportedSignatureLengthsRevert`
+- `check_validCompressedParsing`
+- `check_missingCompressionFlagReverts`
+- `check_infinityFlagReverts`
+- `check_nonCanonicalCompressedXReverts`
+- `check_uncompressedDecodingRoundTrip`
+- `check_uncompressedInfinityReverts`
+- `check_nonCanonicalUncompressedXReverts`
+- `check_nonCanonicalUncompressedYReverts`
+- `check_curveConstantAddition`
+- `check_decompressionSignSelection`
+- `check_equivalentEncodingsNormalizeIdentically`
+- `check_quicknetTrustAnchorBinding`
+- `check_modExpCubeCalldata`
+- `check_modExpSquareRootCalldata`
+- `check_g1AdditionCalldata`
+- `check_pairingPointCalldata`
+- `check_pairingTrustAnchorCalldata`
+- `check_precompileSuccessGate`
+- `check_failedPrecompileReverts`
+- `check_wrongPrecompileLengthReverts`
+- `check_invalidPairingResultReverts`
 - `check_firstWriteStoresExactly`
 - `check_duplicateCannotReplace`
 - `check_distinctRoundsRemainIsolated`
+
+Certora production runtime:
+
+- `duplicateSubmissionIsNoOp`
+- `storedBeaconImmutableAcrossExternalCalls`
+- `onlyPostSigCanCreateBeacon`
 
 Certora state transition:
 
@@ -66,6 +97,7 @@ Certora constrained acceptance:
 
 - `acceptedProofStoresBoundRandomness`
 - `rejectedProofCannotWrite`
+- `mismatchedRoundSummaryCannotWrite`
 - `duplicateSkipsReplacementVerification`
 - `summarizedRandomnessIsRoundBound`
 

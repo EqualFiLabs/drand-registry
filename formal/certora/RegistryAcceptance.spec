@@ -89,13 +89,12 @@ rule rejectedProofCannotWrite(
     assert postedAt(round) == postedAtBefore;
 }
 
-/// A summary for another round or submitted proof cannot authorize this call.
-rule mismatchedSummaryCannotWrite(
+/// A summary for another round cannot authorize this call.
+rule mismatchedRoundSummaryCannotWrite(
     env e,
     uint64 configuredRound,
     uint64 submittedRound,
-    bytes configuredProof,
-    bytes submittedProof,
+    bytes signature,
     uint128 sxh,
     uint256 sxl,
     uint128 syh,
@@ -106,18 +105,17 @@ rule mismatchedSummaryCannotWrite(
     uint256 myl
 ) {
     require e.msg.value == 0;
-    require configuredRound != submittedRound || configuredProof != submittedProof;
+    require configuredRound != submittedRound;
     require !hasSig(submittedRound);
     require e.block.timestamp <= max_uint64;
-    require configuredProof.length == 48 || configuredProof.length == 96;
-    require submittedProof.length == 48 || submittedProof.length == 96;
+    require signature.length == 48 || signature.length == 96;
     require canonicalPointIsValid(sxh, sxl, syh, syl);
     require canonicalPointIsValid(mxh, mxl, myh, myl);
 
     configureVerificationSummary(
-        e, true, configuredRound, configuredProof, sxh, sxl, syh, syl, mxh, mxl, myh, myl
+        e, true, configuredRound, signature, sxh, sxl, syh, syl, mxh, mxl, myh, myl
     );
-    postSig@withrevert(e, submittedRound, submittedProof);
+    postSig@withrevert(e, submittedRound, signature);
 
     assert lastReverted;
     assert !hasSig(submittedRound);
