@@ -180,6 +180,17 @@ contract QuicknetTransformationsHalmosTest is Test {
         }
     }
 
+    function check_decompressionExponentMatchesFieldModulus() public pure {
+        uint256 scaledLo;
+        uint256 scaledHi;
+        unchecked {
+            scaledLo = SQRT_EXPONENT_LO * 4;
+            scaledHi = uint256(SQRT_EXPONENT_HI) * 4 + (SQRT_EXPONENT_LO >> 254);
+        }
+        assert(scaledHi == FIELD_MODULUS_HI);
+        assert(scaledLo == FIELD_MODULUS_LO + 1);
+    }
+
     function check_curveConstantAddition(uint128 valueHi, uint256 valueLo) public view {
         vm.assume(verifier.isCanonicalFieldElement(valueHi, valueLo));
         (uint128 resultHi, uint256 resultLo) = verifier.addCurveB(valueHi, valueLo);

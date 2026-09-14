@@ -65,6 +65,7 @@ Halmos:
 - `check_nonCanonicalUncompressedXReverts`
 - `check_nonCanonicalUncompressedYReverts`
 - `check_curveConstantAddition`
+- `check_decompressionExponentMatchesFieldModulus`
 - `check_decompressionSignSelection`
 - `check_equivalentEncodingsNormalizeIdentically`
 - `check_quicknetTrustAnchorBinding`
