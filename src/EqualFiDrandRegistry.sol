@@ -87,8 +87,6 @@ contract EqualFiDrandRegistry is IEqualFiDrandRegistry {
         virtual
         returns (bytes32 randomness)
     {
-        // The normalized point is intentionally not persisted; only round-bound randomness is stored.
-        // forge-lint: disable-next-line(unused-return)
-        (randomness,) = QuicknetVerifier.verifyAndNormalize(round, signature);
+        return QuicknetVerifier.verifyRandomness(round, signature);
     }
 }

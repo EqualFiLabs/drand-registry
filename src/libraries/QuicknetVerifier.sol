@@ -80,17 +80,19 @@ library QuicknetVerifier {
         view
         returns (bytes32 randomness, bytes memory canonicalSignature)
     {
-        if (round == 0) revert InvalidQuicknetRound(round);
-
-        BLS2.PointG1 memory signaturePoint = decodeSignature(signature);
-        bytes32 digest = messageHash(round);
-        BLS2.PointG1 memory messagePoint = hashMessageToPoint(digest);
-        if (!_verifyPairing(signaturePoint, publicKey(), messagePoint)) {
-            revert InvalidQuicknetSignature(round);
-        }
-
+        BLS2.PointG1 memory signaturePoint = _verifiedSignaturePoint(round, signature);
         canonicalSignature = BLS2.g1Marshal(signaturePoint);
         randomness = keccak256(abi.encodePacked(canonicalSignature, round));
+    }
+
+    /// @notice Verifies a signature and returns only its canonical round-bound randomness.
+    function verifyRandomness(uint64 round, bytes calldata signature)
+        internal
+        view
+        returns (bytes32 randomness)
+    {
+        BLS2.PointG1 memory signaturePoint = _verifiedSignaturePoint(round, signature);
+        return keccak256(abi.encodePacked(BLS2.g1Marshal(signaturePoint), round));
     }
 
     function messageHash(uint64 round) internal pure returns (bytes32) {
@@ -220,6 +222,21 @@ library QuicknetVerifier {
         }
 
         point = BLS2.PointG1(xHi, xLo, yHi, yLo);
+    }
+
+    function _verifiedSignaturePoint(uint64 round, bytes calldata signature)
+        private
+        view
+        returns (BLS2.PointG1 memory signaturePoint)
+    {
+        if (round == 0) revert InvalidQuicknetRound(round);
+
+        signaturePoint = decodeSignature(signature);
+        bytes32 digest = messageHash(round);
+        BLS2.PointG1 memory messagePoint = hashMessageToPoint(digest);
+        if (!_verifyPairing(signaturePoint, publicKey(), messagePoint)) {
+            revert InvalidQuicknetSignature(round);
+        }
     }
 
     function _verifyPairing(
