@@ -1,0 +1,8 @@
+{
+  "lib/bls-solidity": {
+    "rev": "11af179a8287d978659aae07adb66aa60f64b8a6"
+  },
+  "lib/forge-std": {
+    "rev": "bf647bd6046f2f7da30d0c2bf435e5c76a780c1b"
+  }
+}
