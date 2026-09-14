@@ -1,0 +1,591 @@
+{
+    "exitcode": 0,
+    "test_results": {
+        "test/formal/QuicknetTransformations.halmos.t.sol:QuicknetTransformationsHalmosTest": [
+            {
+                "name": "check_curveConstantAddition(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    4,
+                    3,
+                    0
+                ],
+                "time": [
+                    0.06295973062515259,
+                    0.06294932402670383,
+                    8.3092600107193e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_decompressionExponentMatchesFieldModulus()",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0009309090673923492,
+                    0.0009237769991159439,
+                    5.280598998069763e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_decompressionSignSelection(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    11,
+                    10,
+                    0
+                ],
+                "time": [
+                    0.3883388079702854,
+                    0.3883299306035042,
+                    5.912035703659058e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_equivalentEncodingsNormalizeIdentically(uint128,uint256,uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    73,
+                    71,
+                    0
+                ],
+                "time": [
+                    3.255359560251236,
+                    3.255350833758712,
+                    5.85801899433136e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_failedPrecompileReverts(uint256,uint256,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0030267909169197083,
+                    0.0030194446444511414,
+                    4.7050416469573975e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_g1AdditionCalldata(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.007054954767227173,
+                    0.007049413397908211,
+                    3.7867575883865356e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_infinityFlagReverts(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.004607507959008217,
+                    0.004601538181304932,
+                    4.155561327934265e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_invalidPairingResultReverts(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.004696955904364586,
+                    0.004690604284405708,
+                    4.263594746589661e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_missingCompressionFlagReverts(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.006081240251660347,
+                    0.006075400859117508,
+                    3.93204391002655e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_modExpCubeCalldata(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.006210783496499062,
+                    0.006205415353178978,
+                    3.5651028156280518e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_modExpSquareRootCalldata(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.00605202279984951,
+                    0.00604625791311264,
+                    3.907829523086548e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_nonCanonicalCompressedXReverts(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0048079900443553925,
+                    0.004801465198397636,
+                    4.561617970466614e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_nonCanonicalUncompressedXReverts(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.005544284358620644,
+                    0.00553811714053154,
+                    4.233792424201965e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_nonCanonicalUncompressedYReverts(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0050797127187252045,
+                    0.005073091015219688,
+                    4.563480615615845e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_pairingPointCalldata(uint128,uint256,uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    3,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.01174035482108593,
+                    0.011730886995792389,
+                    6.454065442085266e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_pairingTrustAnchorCalldata()",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.004696536809206009,
+                    0.004689117893576622,
+                    5.129724740982056e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_precompileSuccessGate(uint256,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0061447229236364365,
+                    0.006137512624263763,
+                    4.978850483894348e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_quicknetTrustAnchorBinding()",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0790233425796032,
+                    0.07901524752378464,
+                    5.93625009059906e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_supportedSignatureLengths()",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0032209884375333786,
+                    0.003215452656149864,
+                    3.647059202194214e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_uncompressedDecodingRoundTrip(uint128,uint256,uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    11,
+                    9,
+                    0
+                ],
+                "time": [
+                    0.3199977595359087,
+                    0.31998855248093605,
+                    6.595626473426819e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_uncompressedInfinityReverts()",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.0024125073105096817,
+                    0.0024055354297161102,
+                    4.766508936882019e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_unsupportedSignatureLengthsRevert(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.11456358432769775,
+                    0.014228405430912971,
+                    0.10033169202506542
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_validCompressedParsing(uint128,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    3,
+                    2,
+                    0
+                ],
+                "time": [
+                    0.030540451407432556,
+                    0.03053172118961811,
+                    5.017966032028198e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_wrongPrecompileLengthReverts(uint256,uint256,uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.004820557311177254,
+                    0.0048144105821847916,
+                    4.190951585769653e-06
+                ],
+                "num_bounded_loops": 0
+            }
+        ],
+        "test/formal/RegistryCache.halmos.t.sol:RegistryCacheHalmosTest": [
+            {
+                "name": "check_distinctRoundsRemainIsolated(uint64,uint64,bytes32,bytes32,uint64,uint64)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    5,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.04283296689391136,
+                    0.04282597824931145,
+                    4.837289452552795e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_duplicateCannotReplace(uint64,bytes32,uint64,bytes32,uint64)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    4,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.025876697152853012,
+                    0.02587077021598816,
+                    4.118308424949646e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_firstWriteStoresExactly(uint64,bytes32,uint64)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    3,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.02019546926021576,
+                    0.020189201459288597,
+                    4.425644874572754e-06
+                ],
+                "num_bounded_loops": 0
+            }
+        ],
+        "test/formal/RegistryRuntime.halmos.t.sol:RegistryRuntimeHalmosTest": [
+            {
+                "name": "check_duplicateSubmissionIsNoOpOnRuntime(uint64,bytes32,uint64,bytes32)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    3,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.02715691365301609,
+                    0.02714988775551319,
+                    4.984438419342041e-06
+                ],
+                "num_bounded_loops": 0
+            }
+        ],
+        "test/formal/RoundArithmetic.halmos.t.sol:RoundArithmeticHalmosTest": [
+            {
+                "name": "check_firstRoundAfterIsMinimal(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    7,
+                    2,
+                    0
+                ],
+                "time": [
+                    18.291619455441833,
+                    0.07508681528270245,
+                    18.216529997065663
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_firstRoundAfterRejectsWhenNoFutureRound(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    1.5318377874791622,
+                    0.03019050695002079,
+                    1.501644128933549
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_preGenesisMapsToFirstRound(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    1,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.005653081461787224,
+                    0.00564400851726532,
+                    5.692243576049805e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_roundMessageSerialization(uint64)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    0.007430104538798332,
+                    0.007422599941492081,
+                    5.075708031654358e-06
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_roundTimeFormula(uint256)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    2,
+                    1,
+                    0
+                ],
+                "time": [
+                    9.136453559622169,
+                    9.13643592596054,
+                    1.237727701663971e-05
+                ],
+                "num_bounded_loops": 0
+            },
+            {
+                "name": "check_roundTimeRejectsUnsupportedRound(uint64)",
+                "exitcode": 0,
+                "num_models": 0,
+                "models": [],
+                "num_paths": [
+                    3,
+                    2,
+                    0
+                ],
+                "time": [
+                    0.0121342483907938,
+                    0.012125743553042412,
+                    5.7443976402282715e-06
+                ],
+                "num_bounded_loops": 0
+            }
+        ]
+    }
+}

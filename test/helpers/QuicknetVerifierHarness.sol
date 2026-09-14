@@ -25,6 +25,30 @@ contract QuicknetVerifierHarness {
         return BLS2.g2Marshal(QuicknetVerifier.publicKey());
     }
 
+    function messageHash(uint64 round) external pure returns (bytes32) {
+        return QuicknetVerifier.messageHash(round);
+    }
+
+    function roundMessage(uint64 round) external pure returns (bytes memory) {
+        return QuicknetVerifier.roundMessage(round);
+    }
+
+    function decodeSignature(bytes calldata signature) external view returns (bytes memory) {
+        return BLS2.g1Marshal(QuicknetVerifier.decodeSignature(signature));
+    }
+
+    function hashMessageToPoint(bytes32 digest) external view returns (bytes memory) {
+        return BLS2.g1Marshal(QuicknetVerifier.hashMessageToPoint(digest));
+    }
+
+    function checkedStaticcall(uint256 target, bytes calldata input, uint256 outputLength)
+        external
+        view
+        returns (bytes memory)
+    {
+        return QuicknetVerifier.checkedStaticcall(target, input, outputLength);
+    }
+
     function roundTime(uint64 round) external pure returns (uint64) {
         return QuicknetVerifier.roundTime(round);
     }

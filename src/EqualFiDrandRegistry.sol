@@ -53,18 +53,40 @@ contract EqualFiDrandRegistry is IEqualFiDrandRegistry {
         if (currentTimestamp > type(uint64).max) {
             revert BlockTimestampOutOfRange(currentTimestamp);
         }
-
-        // The normalized point is intentionally not persisted; only round-bound randomness is stored.
-        // forge-lint: disable-next-line(unused-return)
-        (bytes32 randomness,) = QuicknetVerifier.verifyAndNormalize(round, signature);
-
-        beacon.randomness = randomness;
-        // The explicit bound above proves the timestamp is within uint64.
+        // The explicit bound above proves currentTimestamp is within uint64.
         // forge-lint: disable-next-line(unsafe-typecast)
-        beacon.postedAt = uint64(currentTimestamp);
-        beacon.stored = true;
+        uint64 recordedAt = uint64(currentTimestamp);
+
+        bytes32 randomness = _verifiedRandomness(round, signature);
+
+        _cacheVerified(round, randomness, recordedAt);
 
         emit QuicknetSignaturePosted(round, msg.sender, randomness, signature);
         return true;
+    }
+
+    /// @dev Isolated first-write transition used by the production verifier and formal harness.
+    function _cacheVerified(uint64 round, bytes32 randomness, uint64 recordedAt)
+        internal
+        returns (bool newlyStored)
+    {
+        Beacon storage beacon = _beacons[round];
+        if (beacon.stored) return false;
+
+        beacon.randomness = randomness;
+        beacon.postedAt = recordedAt;
+        beacon.stored = true;
+        return true;
+    }
+
+    /// @dev Virtual only so formal harnesses can replace the cryptographic precompiles with a
+    ///      constrained summary. The production contract has no external verification bypass.
+    function _verifiedRandomness(uint64 round, bytes calldata signature)
+        internal
+        view
+        virtual
+        returns (bytes32 randomness)
+    {
+        return QuicknetVerifier.verifyRandomness(round, signature);
     }
 }
