@@ -92,6 +92,20 @@ contract QuicknetVerifierTest is Test {
         );
     }
 
+    function test_officialVectorIntermediateValuesMatch() external view {
+        bytes32 expectedMessage = 0xeb26460c7495053b531c3d007789953c47874f3380635090554e0f68619bbbeb;
+        bytes memory expectedMessagePoint =
+            hex"17d2ccf27b4a3e2a3f58f0c09eb4b28137d1d1beb5c37628bec43f645dcbc58d86f482b7f6b2bd5ebd53f7f7361d78550c0ac30904f6d5a300f034d9a6200d008e451c13dc50443a0667755a4a61e10a51edc491d7cd96bdc6c33415213107a5";
+
+        assertEq(verifier.messageHash(VECTOR_ROUND), expectedMessage);
+        assertEq(verifier.hashMessageToPoint(expectedMessage), expectedMessagePoint);
+        assertEq(verifier.decodeSignature(COMPRESSED_SIGNATURE), UNCOMPRESSED_SIGNATURE);
+        assertEq(verifier.decodeSignature(UNCOMPRESSED_SIGNATURE), UNCOMPRESSED_SIGNATURE);
+
+        (bytes32 randomness,) = verifier.verifyAndNormalize(VECTOR_ROUND, COMPRESSED_SIGNATURE);
+        assertEq(randomness, 0x0d4ee1dd90e74d0cd7986fbd3a527cc51efd929877a1766628e61fef523b78e5);
+    }
+
     function test_rejectsUnsupportedSignatureLength() external {
         bytes memory malformed = new bytes(47);
         vm.expectRevert(
@@ -112,5 +126,35 @@ contract QuicknetVerifierTest is Test {
     function test_rejectsUncompressedInfinity() external {
         vm.expectRevert(QuicknetVerifier.InvalidG1Point.selector);
         verifier.verifyAndNormalize(VECTOR_ROUND, new bytes(96));
+    }
+
+    function testFuzz_roundTimeMatchesFormula(uint256 rawRound) external view {
+        uint256 boundedRound = bound(rawRound, 1, verifier.maxRound());
+        // The bound proves the value is within uint64.
+        // forge-lint: disable-next-line(unsafe-typecast)
+        uint64 round = uint64(boundedRound);
+        assertEq(
+            verifier.roundTime(round), uint256(GENESIS_TIMESTAMP) + (uint256(round) - 1) * PERIOD
+        );
+    }
+
+    function testFuzz_firstRoundAfterIsMinimalStrictFuture(uint256 rawTimestamp) external view {
+        uint256 timestamp = bound(rawTimestamp, 0, type(uint64).max - 1);
+
+        uint64 round = verifier.firstRoundAfter(timestamp);
+        uint64 scheduled = verifier.roundTime(round);
+        assertGt(scheduled, timestamp);
+
+        if (round > 1) {
+            assertLe(verifier.roundTime(round - 1), timestamp);
+        }
+    }
+
+    function testFuzz_firstRoundAfterRejectsNoRepresentableFuture(uint256 rawTimestamp) external {
+        uint256 timestamp = bound(rawTimestamp, type(uint64).max, type(uint256).max);
+        vm.expectRevert(
+            abi.encodeWithSelector(QuicknetVerifier.NoFutureQuicknetRound.selector, timestamp)
+        );
+        verifier.firstRoundAfter(timestamp);
     }
 }
