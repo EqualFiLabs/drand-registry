@@ -1,0 +1,88 @@
+{
+  "sourceRevision": "f8db2a1752d22672d4de1708545e286a32c41497",
+  "productionRuntimeBytecodeKeccak256": "0xde08fa453cee52a32750e6ff4f736d28b2a4378494cc699e62d27eb44164c1fc",
+  "build": {
+    "solidity": "0.8.30+commit.73712a01.Linux.g++",
+    "evmVersion": "osaka",
+    "optimizerEnabled": true,
+    "optimizerRuns": 200,
+    "blsSolidityRevision": "11af179a8287d978659aae07adb66aa60f64b8a6",
+    "forgeStdRevision": "bf647bd6046f2f7da30d0c2bf435e5c76a780c1b"
+  },
+  "tools": {
+    "halmos": "0.3.3",
+    "certoraCli": "8.18.0",
+    "forge": "1.7.1",
+    "java": "21.0.12"
+  },
+  "artifactHashes": {
+    "halmosJsonSha256": "15b49d509dd0bec5dbbc82564813b1807c6db12369e36b69f78d56f012d56953",
+    "quicknetTransformationsSpecSha256": "320de2adf782c9f6584d34779f21fc1aedd30f9f1ef8a94ac709d0793afdfbb2",
+    "registryCacheSpecSha256": "28849a857a2a1f3e6124c67be05b57f7933e8445ea81c9123605be278ddc3ec7",
+    "registryRuntimeHalmosSpecSha256": "07c9e52f9c0fb1eab9638d8dce6c684764fc119919f682004f7fcbc2d3b67e72",
+    "roundArithmeticSpecSha256": "30233d0052c410f3c911828d95029a463454a545c84860b295976968f2a13f4f",
+    "certoraAcceptanceSpecSha256": "1a2545434677cb9454a4f9ef327569a178148fe058565c5fd74718f39f02e1f6",
+    "certoraRuntimeSpecSha256": "0f6737e0b748a407f0224de9536b5c6c7aa7d703a04df4c41134b87dd118c8a1",
+    "certoraStateSpecSha256": "7acb00144f7ea40bccf7bfdde809c8b11c6085189a5560742d7ec2a6f19b6e40",
+    "certoraAcceptanceConfigSha256": "6492f170c96166b9a102d89f8bac4d4b31c2b6422a52f7566e1f785aa35e1130",
+    "certoraRuntimeConfigSha256": "eaa9207121c727c938e99481aa0fc0a1bacce40a93640f990787391ef55aae4d",
+    "certoraStateConfigSha256": "55a9b3af000796b0bbfd69e23e00a12b739b60189a3fe10f464c55159a8b491a"
+  },
+  "results": {
+    "halmos": {
+      "status": "PASS",
+      "rules": 34,
+      "counterexamples": 0,
+      "boundedLoops": 0
+    },
+    "certoraState": {
+      "status": "PASS",
+      "rules": [
+        "firstWriteStoresExactly",
+        "duplicateCannotReplace",
+        "roundsRemainIsolated"
+      ],
+      "timedOut": false,
+      "sanityWitnesses": true
+    },
+    "certoraAcceptance": {
+      "status": "PASS",
+      "rules": [
+        "acceptedProofStoresBoundRandomness",
+        "rejectedProofCannotWrite",
+        "mismatchedRoundSummaryCannotWrite",
+        "duplicateSkipsReplacementVerification",
+        "summarizedRandomnessIsRoundBound"
+      ],
+      "timedOut": false,
+      "sanityWitnesses": true
+    },
+    "certoraRuntime": {
+      "status": "PASS",
+      "rules": [
+        "storedBeaconImmutableAcrossNonPostSelectors",
+        "onlyPostSigCanCreateBeacon"
+      ],
+      "timedOut": false,
+      "sanityWitnesses": true
+    }
+  },
+  "mutations": [
+    {
+      "name": "strict-future selection weakened",
+      "expectedDetection": "check_firstRoundAfterIsMinimal counterexample",
+      "observed": "DETECTED"
+    },
+    {
+      "name": "first-write guards removed",
+      "expectedDetection": "check_duplicateCannotReplace counterexample",
+      "observed": "DETECTED"
+    },
+    {
+      "name": "rejected pairing summary permitted",
+      "expectedDetection": "rejectedProofCannotWrite violation",
+      "observed": "DETECTED",
+      "timedOut": false
+    }
+  ]
+}

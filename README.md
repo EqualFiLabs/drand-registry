@@ -6,7 +6,7 @@ The contract is shared infrastructure. It contains no Lottery-specific logic, ow
 
 ## Status
 
-The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. Release still requires the complete adversarial/vector suite, formal-verification package, and target-chain conformance evidence described in the repository guidance.
+The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. The adversarial, vector, and formal-verification gates are complete at the revision recorded in [the formal report](docs/formal-verification.md). Release still requires target-chain conformance and deployed-bytecode matching.
 
 ## Development
 
