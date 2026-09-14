@@ -6,7 +6,7 @@ The contract is shared infrastructure. It contains no Lottery-specific logic, ow
 
 ## Status
 
-The repository is under active development. The stable consumer interface and project foundation are present; cryptographic verification and deployable Registry behavior are delivered in subsequent reviewed changes. Do not deploy the current foundation branch.
+The repository is under active development. The stable consumer interface and Quicknet verification layer are present; persistent Registry behavior is delivered in a subsequent reviewed change. Do not deploy the current branch.
 
 ## Development
 
@@ -21,4 +21,4 @@ CI owns the complete test, fuzz, and static-analysis gates. Formal-verification 
 
 ## Security
 
-The pinned BLS dependency is experimental and explicitly unaudited upstream. See [docs/dependencies.md](docs/dependencies.md) for its exact revision and review boundary.
+The pinned BLS dependency is experimental and explicitly unaudited upstream. See [docs/dependencies.md](docs/dependencies.md) for its exact revision and review boundary, and [docs/quicknet.md](docs/quicknet.md) for the immutable trust anchor.
