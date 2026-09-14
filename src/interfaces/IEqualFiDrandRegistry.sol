@@ -4,6 +4,14 @@ pragma solidity 0.8.30;
 /// @title EqualFi drand Registry interface
 /// @notice Stable consumer surface for verified drand Quicknet beacons.
 interface IEqualFiDrandRegistry {
+    /// @notice Emitted when a Quicknet round is first verified and permanently cached.
+    event QuicknetSignaturePosted(
+        uint64 indexed round,
+        address indexed poster,
+        bytes32 indexed randomness,
+        bytes submittedSignature
+    );
+
     /// @notice Returns the first Quicknet round scheduled strictly after `timestamp`.
     function firstRoundAfter(uint256 timestamp) external pure returns (uint64 round);
 
