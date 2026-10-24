@@ -1,5 +1,11 @@
 # Shared Randomness Release Gate
 
+> Historical evidence: the results below remain bound to their recorded commits and
+> bytecode hashes. The subsequent local BLS helper extraction changes source paths,
+> runtime metadata, and formal harnesses. These results do not constitute a fresh
+> proof or release gate for that extraction; CI and remote formal checks must be
+> rerun for its release candidate.
+
 ## Candidate
 
 - Registry stack candidate: `6c53116a67c3b37183e7a1c0be56a7d1eeec9a8c`

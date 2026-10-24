@@ -12,8 +12,8 @@
 - Normalize both supported encodings to the same canonical G1 representation before deriving randomness.
 - Bind verification to the compiled Quicknet public key, Quicknet DST, and exact big-endian `uint64` round message.
 - Treat EIP-2537 precompiles as an explicit external assumption. Validate their concrete behavior separately on the target chain.
-- Keep the pinned `bls-solidity` dependency unmodified. Any cryptographic primitive change requires an explicit design and review decision.
-- Never claim upstream audit coverage: the pinned dependency describes itself as experimental and unaudited.
+- Keep the attributed local BLS helper subset minimal and preserve its documented upstream provenance. Any cryptographic primitive change requires an explicit design and review decision.
+- Never claim upstream audit coverage: the source of the extracted helpers describes itself as experimental and unaudited.
 
 ## Registry Invariants
 

@@ -6,7 +6,7 @@ The contract is shared infrastructure. It contains no Lottery-specific logic, ow
 
 ## Status
 
-The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. The adversarial, vector, and formal-verification gates are complete at the revision recorded in [the formal report](docs/formal-verification.md). Release still requires target-chain conformance and deployed-bytecode matching.
+The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. The [formal report](docs/formal-verification.md) records passing gates for a historical revision. The local BLS helper extraction changes source paths, metadata, and proof harnesses; it requires fresh CI and formal release evidence. Target-chain conformance and deployed-bytecode matching remain separate requirements.
 
 ## Development
 
@@ -21,4 +21,4 @@ CI owns the complete test, fuzz, and static-analysis gates. Formal-verification 
 
 ## Security
 
-The pinned BLS dependency is experimental and explicitly unaudited upstream. See [docs/dependencies.md](docs/dependencies.md) for its exact revision and review boundary, and [docs/quicknet.md](docs/quicknet.md) for the immutable trust anchor.
+The local BLS helpers were extracted from an experimental, explicitly unaudited upstream library. See [docs/dependencies.md](docs/dependencies.md) for their exact provenance and review boundary, and [docs/quicknet.md](docs/quicknet.md) for the immutable trust anchor.
