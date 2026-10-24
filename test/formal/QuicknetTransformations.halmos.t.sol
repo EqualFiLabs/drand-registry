@@ -2,7 +2,7 @@
 pragma solidity 0.8.30;
 
 import { Test } from "forge-std/Test.sol";
-import { BLS2 } from "bls-solidity/libraries/BLS2.sol";
+import { Bls12381 } from "../../src/libraries/Bls12381.sol";
 import {
     QuicknetTransformationHarness
 } from "../../formal/harness/QuicknetTransformationHarness.sol";
@@ -314,8 +314,8 @@ contract QuicknetTransformationsHalmosTest is Test {
         uint128 messageXHi,
         uint256 messageYLo
     ) public view {
-        BLS2.PointG1 memory signature = BLS2.PointG1(signatureXHi, 0, 0, signatureYLo);
-        BLS2.PointG1 memory message = BLS2.PointG1(messageXHi, 0, 0, messageYLo);
+        Bls12381.PointG1 memory signature = Bls12381.PointG1(signatureXHi, 0, 0, signatureYLo);
+        Bls12381.PointG1 memory message = Bls12381.PointG1(messageXHi, 0, 0, messageYLo);
         bytes memory input = verifier.pairingInput(signature, message);
 
         uint256 firstSignatureWord;
@@ -337,7 +337,7 @@ contract QuicknetTransformationsHalmosTest is Test {
     }
 
     function check_pairingTrustAnchorCalldata() public view {
-        BLS2.PointG1 memory emptyPoint = BLS2.PointG1(0, 0, 0, 0);
+        Bls12381.PointG1 memory emptyPoint = Bls12381.PointG1(0, 0, 0, 0);
         bytes memory input = verifier.pairingInput(emptyPoint, emptyPoint);
         uint256 firstNegativeGeneratorWord;
         uint256 lastNegativeGeneratorWord;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-import { BLS2 } from "bls-solidity/libraries/BLS2.sol";
+import { Bls12381 } from "../../src/libraries/Bls12381.sol";
 import { QuicknetVerifier } from "../../src/libraries/QuicknetVerifier.sol";
 
 contract QuicknetVerifierHarness {
@@ -22,7 +22,10 @@ contract QuicknetVerifierHarness {
     }
 
     function publicKey() external pure returns (bytes memory) {
-        return BLS2.g2Marshal(QuicknetVerifier.publicKey());
+        Bls12381.PointG2 memory key = QuicknetVerifier.publicKey();
+        return abi.encodePacked(
+            key.x1_hi, key.x1_lo, key.x0_hi, key.x0_lo, key.y1_hi, key.y1_lo, key.y0_hi, key.y0_lo
+        );
     }
 
     function messageHash(uint64 round) external pure returns (bytes32) {
@@ -34,11 +37,11 @@ contract QuicknetVerifierHarness {
     }
 
     function decodeSignature(bytes calldata signature) external view returns (bytes memory) {
-        return BLS2.g1Marshal(QuicknetVerifier.decodeSignature(signature));
+        return Bls12381.g1Marshal(QuicknetVerifier.decodeSignature(signature));
     }
 
     function hashMessageToPoint(bytes32 digest) external view returns (bytes memory) {
-        return BLS2.g1Marshal(QuicknetVerifier.hashMessageToPoint(digest));
+        return Bls12381.g1Marshal(QuicknetVerifier.hashMessageToPoint(digest));
     }
 
     function checkedStaticcall(uint256 target, bytes calldata input, uint256 outputLength)

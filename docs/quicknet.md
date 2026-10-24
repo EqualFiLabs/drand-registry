@@ -48,4 +48,4 @@ The focused verification tests use [official Quicknet round 20791007](https://ap
 8d2c8bbc37170dbacc5e280a21d4e195cff5f32a19fd6a58633fa4e4670478b5fb39bc13dd8f8c4372c5a76191198ac5
 ```
 
-The corresponding uncompressed point comes from the pinned `bls-solidity` test corpus. Target-chain EIP-2537 conformance and the formal-verification assumptions remain separate release gates.
+The corresponding uncompressed point comes from the `bls-solidity` test corpus at upstream commit `11af179a8287d978659aae07adb66aa60f64b8a6` (see [provenance](dependencies.md)). Target-chain EIP-2537 conformance and the formal-verification assumptions remain separate release gates.

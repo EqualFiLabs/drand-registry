@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-import { BLS2 } from "bls-solidity/libraries/BLS2.sol";
 import {
+    Bls12381,
     BLS12_G1ADD,
     BLS12_MAP_FP_TO_G1,
     BLS12_PAIRING_CHECK,
     MODEXP_ADDRESS
-} from "bls-solidity/libraries/Precompiles.sol";
+} from "./Bls12381.sol";
 
 /// @title drand Quicknet verification
 /// @notice Binds supported signature encodings to the immutable Quicknet trust anchor.
@@ -80,8 +80,8 @@ library QuicknetVerifier {
         view
         returns (bytes32 randomness, bytes memory canonicalSignature)
     {
-        BLS2.PointG1 memory signaturePoint = _verifiedSignaturePoint(round, signature);
-        canonicalSignature = BLS2.g1Marshal(signaturePoint);
+        Bls12381.PointG1 memory signaturePoint = _verifiedSignaturePoint(round, signature);
+        canonicalSignature = Bls12381.g1Marshal(signaturePoint);
         randomness = keccak256(abi.encodePacked(canonicalSignature, round));
     }
 
@@ -91,8 +91,8 @@ library QuicknetVerifier {
         view
         returns (bytes32 randomness)
     {
-        BLS2.PointG1 memory signaturePoint = _verifiedSignaturePoint(round, signature);
-        return keccak256(abi.encodePacked(BLS2.g1Marshal(signaturePoint), round));
+        Bls12381.PointG1 memory signaturePoint = _verifiedSignaturePoint(round, signature);
+        return keccak256(abi.encodePacked(Bls12381.g1Marshal(signaturePoint), round));
     }
 
     function messageHash(uint64 round) internal pure returns (bytes32) {
@@ -108,7 +108,7 @@ library QuicknetVerifier {
     function decodeSignature(bytes calldata signature)
         internal
         view
-        returns (BLS2.PointG1 memory point)
+        returns (Bls12381.PointG1 memory point)
     {
         if (compressedEncodingForLength(signature.length)) {
             point = _decodeCompressedSignature(signature);
@@ -125,8 +125,13 @@ library QuicknetVerifier {
         revert UnsupportedSignatureLength(length);
     }
 
-    function hashMessageToPoint(bytes32 digest) internal view returns (BLS2.PointG1 memory point) {
-        bytes memory uniform = BLS2.expandMsg(domainSeparationTag(), abi.encodePacked(digest), 128);
+    function hashMessageToPoint(bytes32 digest)
+        internal
+        view
+        returns (Bls12381.PointG1 memory point)
+    {
+        bytes memory uniform =
+            Bls12381.expandMsg(domainSeparationTag(), abi.encodePacked(digest), 128);
         bytes memory firstField = _uniformChunk(uniform, 0);
         bytes memory secondField = _uniformChunk(uniform, 64);
 
@@ -142,8 +147,8 @@ library QuicknetVerifier {
     }
 
     /// @notice Returns the immutable Quicknet G2 public key.
-    function publicKey() internal pure returns (BLS2.PointG2 memory) {
-        return BLS2.PointG2(
+    function publicKey() internal pure returns (Bls12381.PointG2 memory) {
+        return Bls12381.PointG2(
             0x03cf0f2896adee7eb8b5f01fcad39122,
             0x12c437e0073e911fb90022d3e760183c8c4b450b6a0a6c3ac6a5776a2d106451,
             0x0d1fec758c921cc22b0e17e63aaf4bcb,
@@ -225,7 +230,7 @@ library QuicknetVerifier {
     function decodeUncompressedSignature(bytes calldata signature)
         internal
         pure
-        returns (BLS2.PointG1 memory point)
+        returns (Bls12381.PointG1 memory point)
     {
         if (signature.length != UNCOMPRESSED_SIGNATURE_LENGTH) {
             revert UnsupportedSignatureLength(signature.length);
@@ -265,7 +270,7 @@ library QuicknetVerifier {
     function _decodeCompressedSignature(bytes calldata signature)
         private
         view
-        returns (BLS2.PointG1 memory point)
+        returns (Bls12381.PointG1 memory point)
     {
         (uint128 xHi, uint256 xLo, bool selectSmallerY) = parseCompressedSignature(signature);
 
@@ -279,7 +284,7 @@ library QuicknetVerifier {
 
         (yHi, yLo) = selectY(yHi, yLo, selectSmallerY);
 
-        point = BLS2.PointG1(xHi, xLo, yHi, yLo);
+        point = Bls12381.PointG1(xHi, xLo, yHi, yLo);
     }
 
     function addCurveB(uint128 valueHi, uint256 valueLo)
@@ -298,22 +303,22 @@ library QuicknetVerifier {
     function _verifiedSignaturePoint(uint64 round, bytes calldata signature)
         private
         view
-        returns (BLS2.PointG1 memory signaturePoint)
+        returns (Bls12381.PointG1 memory signaturePoint)
     {
         if (round == 0) revert InvalidQuicknetRound(round);
 
         signaturePoint = decodeSignature(signature);
         bytes32 digest = messageHash(round);
-        BLS2.PointG1 memory messagePoint = hashMessageToPoint(digest);
+        Bls12381.PointG1 memory messagePoint = hashMessageToPoint(digest);
         if (!_verifyPairing(signaturePoint, publicKey(), messagePoint)) {
             revert InvalidQuicknetSignature(round);
         }
     }
 
     function _verifyPairing(
-        BLS2.PointG1 memory signature,
-        BLS2.PointG2 memory pubkey,
-        BLS2.PointG1 memory message
+        Bls12381.PointG1 memory signature,
+        Bls12381.PointG2 memory pubkey,
+        Bls12381.PointG1 memory message
     ) private view returns (bool) {
         bytes memory output = checkedStaticcall(
             BLS12_PAIRING_CHECK, pairingInput(signature, pubkey, message), 32
@@ -322,9 +327,9 @@ library QuicknetVerifier {
     }
 
     function pairingInput(
-        BLS2.PointG1 memory signature,
-        BLS2.PointG2 memory pubkey,
-        BLS2.PointG1 memory message
+        Bls12381.PointG1 memory signature,
+        Bls12381.PointG2 memory pubkey,
+        Bls12381.PointG1 memory message
     ) internal pure returns (bytes memory) {
         uint256[24] memory operands = [
             signature.x_hi,
@@ -423,7 +428,7 @@ library QuicknetVerifier {
     function decodePrecompileG1(bytes memory encoded)
         internal
         pure
-        returns (BLS2.PointG1 memory point)
+        returns (Bls12381.PointG1 memory point)
     {
         uint256 xHiWord;
         uint256 xLo;
@@ -440,10 +445,10 @@ library QuicknetVerifier {
         }
         // The explicit bounds above prove both high limbs are within uint128.
         // forge-lint: disable-next-line(unsafe-typecast)
-        point = BLS2.PointG1(uint128(xHiWord), xLo, uint128(yHiWord), yLo);
+        point = Bls12381.PointG1(uint128(xHiWord), xLo, uint128(yHiWord), yLo);
     }
 
-    function validateG1Point(BLS2.PointG1 memory point) internal pure {
+    function validateG1Point(Bls12381.PointG1 memory point) internal pure {
         if (
             (point.x_hi == 0 && point.x_lo == 0 && point.y_hi == 0 && point.y_lo == 0)
                 || !isCanonicalFieldElement(point.x_hi, point.x_lo)

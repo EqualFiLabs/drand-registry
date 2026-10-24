@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-import { BLS2 } from "bls-solidity/libraries/BLS2.sol";
+import { Bls12381 } from "../../src/libraries/Bls12381.sol";
 import { EqualFiDrandRegistry } from "../../src/EqualFiDrandRegistry.sol";
 import { QuicknetVerifier } from "../../src/libraries/QuicknetVerifier.sol";
 
@@ -22,8 +22,8 @@ contract RegistryAcceptanceHarness is EqualFiDrandRegistry {
     bool private _accepted;
     uint64 private _summarizedRound;
     bytes32 private _submittedProofHash;
-    BLS2.PointG1 private _signaturePoint;
-    BLS2.PointG1 private _messagePoint;
+    Bls12381.PointG1 private _signaturePoint;
+    Bls12381.PointG1 private _messagePoint;
     bytes32 private _messageBinding;
     bytes32 private _pairingBinding;
 
@@ -42,10 +42,10 @@ contract RegistryAcceptanceHarness is EqualFiDrandRegistry {
         uint128 messageYHi,
         uint256 messageYLo
     ) external {
-        BLS2.PointG1 memory signaturePoint =
-            BLS2.PointG1(signatureXHi, signatureXLo, signatureYHi, signatureYLo);
-        BLS2.PointG1 memory messagePoint =
-            BLS2.PointG1(messageXHi, messageXLo, messageYHi, messageYLo);
+        Bls12381.PointG1 memory signaturePoint =
+            Bls12381.PointG1(signatureXHi, signatureXLo, signatureYHi, signatureYLo);
+        Bls12381.PointG1 memory messagePoint =
+            Bls12381.PointG1(messageXHi, messageXLo, messageYHi, messageYLo);
         QuicknetVerifier.validateG1Point(signaturePoint);
         QuicknetVerifier.validateG1Point(messagePoint);
 
@@ -69,9 +69,9 @@ contract RegistryAcceptanceHarness is EqualFiDrandRegistry {
         pure
         returns (bytes32)
     {
-        BLS2.PointG1 memory signaturePoint =
-            BLS2.PointG1(signatureXHi, signatureXLo, signatureYHi, signatureYLo);
-        return keccak256(abi.encodePacked(BLS2.g1Marshal(signaturePoint), round));
+        Bls12381.PointG1 memory signaturePoint =
+            Bls12381.PointG1(signatureXHi, signatureXLo, signatureYHi, signatureYLo);
+        return keccak256(abi.encodePacked(Bls12381.g1Marshal(signaturePoint), round));
     }
 
     function canonicalPointIsValid(uint128 xHi, uint256 xLo, uint128 yHi, uint256 yLo)
@@ -84,7 +84,7 @@ contract RegistryAcceptanceHarness is EqualFiDrandRegistry {
             && QuicknetVerifier.isCanonicalFieldElement(yHi, yLo);
     }
 
-    function messageBinding(uint64 round, BLS2.PointG1 memory messagePoint)
+    function messageBinding(uint64 round, Bls12381.PointG1 memory messagePoint)
         public
         pure
         returns (bytes32)
@@ -93,14 +93,14 @@ contract RegistryAcceptanceHarness is EqualFiDrandRegistry {
             abi.encodePacked(
                 QuicknetVerifier.domainSeparationTag(),
                 QuicknetVerifier.roundMessage(round),
-                BLS2.g1Marshal(messagePoint)
+                Bls12381.g1Marshal(messagePoint)
             )
         );
     }
 
     function pairingBinding(
-        BLS2.PointG1 memory signaturePoint,
-        BLS2.PointG1 memory messagePoint
+        Bls12381.PointG1 memory signaturePoint,
+        Bls12381.PointG1 memory messagePoint
     ) public pure returns (bytes32) {
         return keccak256(
             QuicknetVerifier.pairingInput(

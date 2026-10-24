@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.30;
 
-import { BLS2 } from "bls-solidity/libraries/BLS2.sol";
+import { Bls12381 } from "../../src/libraries/Bls12381.sol";
 import { QuicknetVerifier } from "../../src/libraries/QuicknetVerifier.sol";
 
 /// @notice Thin external wrappers around the exact production transformation code.
@@ -24,7 +24,7 @@ contract QuicknetTransformationHarness {
         pure
         returns (uint128, uint256, uint128, uint256)
     {
-        BLS2.PointG1 memory point = QuicknetVerifier.decodeUncompressedSignature(signature);
+        Bls12381.PointG1 memory point = QuicknetVerifier.decodeUncompressedSignature(signature);
         return (point.x_hi, point.x_lo, point.y_hi, point.y_lo);
     }
 
@@ -53,9 +53,9 @@ contract QuicknetTransformationHarness {
         pure
         returns (bytes32)
     {
-        BLS2.PointG1 memory point = BLS2.PointG1(xHi, xLo, yHi, yLo);
+        Bls12381.PointG1 memory point = Bls12381.PointG1(xHi, xLo, yHi, yLo);
         QuicknetVerifier.validateG1Point(point);
-        return keccak256(BLS2.g1Marshal(point));
+        return keccak256(Bls12381.g1Marshal(point));
     }
 
     function domainSeparationTagHash() external pure returns (bytes32) {
@@ -63,7 +63,19 @@ contract QuicknetTransformationHarness {
     }
 
     function publicKeyHash() external pure returns (bytes32) {
-        return keccak256(BLS2.g2Marshal(QuicknetVerifier.publicKey()));
+        Bls12381.PointG2 memory key = QuicknetVerifier.publicKey();
+        return keccak256(
+            abi.encodePacked(
+                key.x1_hi,
+                key.x1_lo,
+                key.x0_hi,
+                key.x0_lo,
+                key.y1_hi,
+                key.y1_lo,
+                key.y0_hi,
+                key.y0_lo
+            )
+        );
     }
 
     function modExpInput(bytes calldata base, bytes calldata exponent)
@@ -82,7 +94,7 @@ contract QuicknetTransformationHarness {
         return QuicknetVerifier.g1AddInput(firstPoint, secondPoint);
     }
 
-    function pairingInput(BLS2.PointG1 calldata signature, BLS2.PointG1 calldata message)
+    function pairingInput(Bls12381.PointG1 calldata signature, Bls12381.PointG1 calldata message)
         external
         pure
         returns (bytes memory)
