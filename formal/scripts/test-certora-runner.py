@@ -5,10 +5,14 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 module = importlib.util.spec_from_file_location("runner", Path(__file__).with_name("run-certora.py"))
 runner = importlib.util.module_from_spec(module)
 module.loader.exec_module(runner)
+launcher_module = importlib.util.spec_from_file_location("launcher", Path(__file__).with_name("certora-local.py"))
+launcher = importlib.util.module_from_spec(launcher_module)
+launcher_module.loader.exec_module(launcher)
 
 
 class EvidenceValidation(unittest.TestCase):
@@ -90,6 +94,51 @@ class EvidenceValidation(unittest.TestCase):
     def test_missing_envfree_method(self):
         self.suite["obligations"].append({"context": ["envfreeFuncsStaticCheck"],
                                           "methods": ["hasSig(uint64)"]})
+        with self.assertRaises(ValueError):
+            self.check()
+
+    def test_manifest_requires_complete_inventory(self):
+        manifest = runner.load_json(runner.MANIFEST)
+        self.assertEqual(len(runner.validate_manifest(manifest)), 6)
+        for broken in [{**manifest, "schema": 2}, {**manifest, "suites": []},
+                       {**manifest, "suites": manifest["suites"][:-1]}]:
+            with self.subTest(broken=broken.get("schema")):
+                with self.assertRaises(ValueError):
+                    runner.validate_manifest(broken)
+
+
+class CliIntegrity(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        root = Path(self.directory.name)
+        self.install, self.source = root / "install", root / "source"
+        for name in ["certoraRun.py", "CertoraProver/certoraBuild.py"]:
+            for base in [self.install, self.source / "scripts"]:
+                path = base / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("# pinned module\n")
+        self.tracked = "scripts/certoraRun.py\nscripts/CertoraProver/certoraBuild.py\n"
+
+    def check(self):
+        with mock.patch.object(launcher.subprocess, "check_output", return_value=self.tracked):
+            launcher.validate_cli(self.install, self.source)
+
+    def test_matching_cli(self):
+        self.check()
+
+    def test_stale_build_module(self):
+        (self.install / "CertoraProver/certoraBuild.py").write_text("# stale\n")
+        with self.assertRaises(ValueError):
+            self.check()
+
+    def test_missing_build_module(self):
+        (self.install / "CertoraProver/certoraBuild.py").unlink()
+        with self.assertRaises(ValueError):
+            self.check()
+
+    def test_extra_module(self):
+        (self.install / "unknown.py").write_text("# extra\n")
         with self.assertRaises(ValueError):
             self.check()
 

@@ -15,6 +15,9 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "formal/certora/suite.json"
 STATUSES = {"SUCCESS", "FAIL", "TIMEOUT", "UNKNOWN", "ERROR", "SKIPPED"}
+REQUIRED_SUITES = {"RegistryState": 3, "RegistryAcceptance": 5, "RegistryRuntime": 2,
+                   "RegistryEvents": 3, "ProductionCalldataRejects": 2,
+                   "ProductionCalldataGuards": 2}
 
 
 def execute(command, cwd, env, log, timeout):
@@ -125,16 +128,34 @@ def tool_hashes(env):
     return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(set(files))}
 
 
+def validate_manifest(manifest):
+    if type(manifest.get("schema")) is not int or manifest["schema"] != 1:
+        raise ValueError("Unsupported suite manifest schema")
+    suites = manifest.get("suites")
+    if not isinstance(suites, list) or not suites:
+        raise ValueError("Suite manifest must be nonempty")
+    names = [s["name"] for s in suites]
+    if len(names) != len(set(names)) or set(names) != set(REQUIRED_SUITES):
+        raise ValueError("The complete six-suite inventory is required")
+    for suite in suites:
+        named = [o["context"][0] for o in suite["obligations"]
+                 if o["context"] != ["envfreeFuncsStaticCheck"]]
+        if len(named) != REQUIRED_SUITES[suite["name"]] or len(set(named)) != len(named):
+            raise ValueError("Named rule inventory differs from the declared 17-rule package")
+    return suites
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("suites", nargs="*", help="Suite names; default: all")
     parser.add_argument("--list", action="store_true")
     args = parser.parse_args()
     manifest = load_json(MANIFEST)
-    suites = manifest["suites"]
+    try:
+        suites = validate_manifest(manifest)
+    except (KeyError, TypeError, ValueError) as error:
+        parser.error(str(error))
     names = [s["name"] for s in suites]
-    if len(names) != len(set(names)):
-        parser.error("Duplicate suite name")
     if args.list:
         print("\n".join(names))
         return
@@ -164,6 +185,9 @@ def main():
     env["CERTORA_LOCAL_ROOT"] = str(Path(env.get("CERTORA_LOCAL_ROOT", ROOT / ".certora-tools")).resolve())
     record = {"source_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
               "suite_sha256": hashlib.sha256(MANIFEST.read_bytes()).hexdigest(), "suites": {}}
+    record["prover_commit"] = subprocess.check_output(
+        ["git", "-C", str(Path(env["CERTORA_LOCAL_ROOT"]) / "source"), "rev-parse", "HEAD"],
+        text=True).strip()
     record["tools"] = {}
     for tool, pattern in [("java", r'"21\.'), ("z3", r'\b4\.16\.0\b'),
                           ("cvc5", r'\b1\.4\.2\b'), ("solc8.30", r'0\.8\.30\+commit\.73712a01')]:
@@ -193,7 +217,7 @@ def main():
             validate(suite, result_path, log_path, code)
             if input_hashes() != record["input_sha256"] or tool_hashes(env) != record["tool_sha256"]:
                 raise ValueError("Source, proof inputs, or executed tools changed during execution")
-            record["suites"][name] = {"status": "PASS", "exit": code}
+            record["suites"][name] = {"status": "PASS", "exit": code, "command": command}
             print(f"PASS {name}", flush=True)
         except (ValueError, OSError) as error:
             record["suites"][name] = {"status": "INCOMPLETE_OR_FAILED", "reason": str(error)}

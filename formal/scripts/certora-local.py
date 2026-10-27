@@ -8,6 +8,34 @@ import subprocess
 import sys
 
 PROVER_COMMIT = "f5f77783430449791186f7812ebd53addf22cabd"
+CLI_ENTRY_POINTS = {
+    "certoraRun.py", "certoraSolanaProver.py", "certoraSorobanProver.py",
+    "certoraSuiProver.py", "certoraEVMProver.py", "certoraRanger.py",
+    "certoraConcord.py", "certoraConcordance.py", "certoraMutate.py",
+    "rustMutator.py", "certoraEqCheck.py", "certoraCVLFormatter.py",
+}
+CLI_PACKAGES = {"Shared", "CertoraProver", "Mutate", "EquivalenceCheck", "graphcore", "concordance"}
+
+
+def validate_cli(install, source):
+    tracked = set(subprocess.check_output(
+        ["git", "-C", str(source), "ls-files", "--recurse-submodules", "scripts"], text=True
+    ).splitlines())
+    modules = list(install.rglob("*.py"))
+    if not modules:
+        raise ValueError("Installed CLI Python modules are missing")
+    for module in modules:
+        relative = module.relative_to(install)
+        target = source / "scripts" / relative
+        if (str(Path("scripts") / relative) not in tracked or not target.is_file()
+                or module.read_bytes() != target.read_bytes()):
+            raise ValueError("Installed CLI differs from the pinned prover source")
+    # Mirrors the Python assets selected by the pinned upstream Gradle build.
+    required = {Path(p).relative_to("scripts") for p in tracked if p.endswith(".py")
+                and (Path(p).name in CLI_ENTRY_POINTS
+                     or Path(p).relative_to("scripts").parts[0] in CLI_PACKAGES)}
+    if required != {p.relative_to(install) for p in modules}:
+        raise ValueError("Installed CLI package is incomplete")
 
 
 def main():
@@ -24,10 +52,7 @@ def main():
         sys.exit("The local prover source is not at the required commit.")
     subprocess.run(["git", "-C", str(source), "diff", "--exit-code", "HEAD"],
                    check=True, stdout=subprocess.DEVNULL)
-    for module in ["certoraRun.py", "Shared/proverCommon.py", "Shared/certoraUtils.py",
-                   "CertoraProver/certoraContext.py", "CertoraProver/certoraContextAttributes.py"]:
-        if (install / module).read_bytes() != (source / "scripts" / module).read_bytes():
-            sys.exit("Installed CLI differs from the pinned prover source.")
+    validate_cli(install, source)
     required_hash = os.environ.get("CERTORA_JAR_SHA256")
     if required_hash and hashlib.sha256(jar.read_bytes()).hexdigest() != required_hash:
         sys.exit("The local prover JAR does not match CERTORA_JAR_SHA256.")
