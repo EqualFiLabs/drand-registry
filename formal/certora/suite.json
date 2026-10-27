@@ -1,0 +1,273 @@
+{
+  "schema": 1,
+  "description": "Required proof obligations and non-vacuity witnesses; no execution results.",
+  "production_revision": "118a94d2e447055d1a47d1a13488e887aaa4a822",
+  "source_sha256": {
+    "src/EqualFiDrandRegistry.sol": "46dbad8c1d66a29b8c6682df2a843d6b019353e9801618895ebeed99dddacfda",
+    "src/interfaces/IEqualFiDrandRegistry.sol": "ed21e63d1fd5e2546f2281aa9ce5166dec80ad752100449674d1814f4dd7c7a1",
+    "src/libraries/Bls12381.sol": "9e7c9fb12ee40171dfdbf1148211e2d593c7760029ef93cbbb608f25b909abfc",
+    "src/libraries/QuicknetVerifier.sol": "dd269f8bece99af1e4514fe2b2e50f4b96a3038c7c641bc37827dccbb9ea14b8"
+  },
+  "suites": [
+    {
+      "name": "RegistryState",
+      "configuration": "formal/conf/RegistryState.conf",
+      "timeout_seconds": 3600,
+      "concurrent_rules": 2,
+      "obligations": [
+        {
+          "context": [
+            "envfreeFuncsStaticCheck"
+          ],
+          "methods": [
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)"
+          ]
+        },
+        {
+          "context": [
+            "duplicateCannotReplace"
+          ]
+        },
+        {
+          "context": [
+            "firstWriteStoresExactly"
+          ]
+        },
+        {
+          "context": [
+            "roundsRemainIsolated"
+          ]
+        }
+      ],
+      "sanity": {
+        "rule_not_vacuous": [
+          "duplicateCannotReplace-rule_not_vacuous",
+          "firstWriteStoresExactly-rule_not_vacuous",
+          "roundsRemainIsolated-rule_not_vacuous"
+        ]
+      }
+    },
+    {
+      "name": "RegistryAcceptance",
+      "configuration": "formal/conf/RegistryAcceptance.conf",
+      "timeout_seconds": 3600,
+      "concurrent_rules": 2,
+      "obligations": [
+        {
+          "context": [
+            "envfreeFuncsStaticCheck"
+          ],
+          "methods": [
+            "canonicalPointIsValid(uint128,uint256,uint128,uint256)",
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)",
+            "summarizedRandomness(uint64,uint128,uint256,uint128,uint256)"
+          ]
+        },
+        {
+          "context": [
+            "acceptedProofStoresBoundRandomness"
+          ]
+        },
+        {
+          "context": [
+            "duplicateSkipsReplacementVerification"
+          ]
+        },
+        {
+          "context": [
+            "mismatchedRoundSummaryCannotWrite"
+          ]
+        },
+        {
+          "context": [
+            "rejectedProofCannotWrite"
+          ]
+        },
+        {
+          "context": [
+            "summarizedRandomnessIsRoundBound"
+          ]
+        }
+      ],
+      "sanity": {
+        "rule_not_vacuous": [
+          "acceptedProofStoresBoundRandomness-rule_not_vacuous",
+          "duplicateSkipsReplacementVerification-rule_not_vacuous",
+          "mismatchedRoundSummaryCannotWrite-rule_not_vacuous",
+          "rejectedProofCannotWrite-rule_not_vacuous",
+          "summarizedRandomnessIsRoundBound-rule_not_vacuous"
+        ]
+      }
+    },
+    {
+      "name": "RegistryRuntime",
+      "configuration": "formal/conf/RegistryRuntime.conf",
+      "timeout_seconds": 3600,
+      "concurrent_rules": 2,
+      "obligations": [
+        {
+          "context": [
+            "envfreeFuncsStaticCheck"
+          ],
+          "methods": [
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)"
+          ]
+        },
+        {
+          "context": [
+            "onlyPostSigCanCreateBeacon"
+          ],
+          "methods": [
+            "firstRoundAfter(uint256)",
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)",
+            "roundTime(uint64)"
+          ]
+        },
+        {
+          "context": [
+            "storedBeaconImmutableAcrossNonPostSelectors"
+          ],
+          "methods": [
+            "firstRoundAfter(uint256)",
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)",
+            "roundTime(uint64)"
+          ]
+        }
+      ],
+      "sanity": {
+        "rule_not_vacuous": [
+          "onlyPostSigCanCreateBeacon-firstRoundAfter(uint256)-rule_not_vacuous",
+          "onlyPostSigCanCreateBeacon-hasSig(uint64)-rule_not_vacuous",
+          "onlyPostSigCanCreateBeacon-postedAt(uint64)-rule_not_vacuous",
+          "onlyPostSigCanCreateBeacon-randomnessOf(uint64)-rule_not_vacuous",
+          "onlyPostSigCanCreateBeacon-roundTime(uint64)-rule_not_vacuous",
+          "storedBeaconImmutableAcrossNonPostSelectors-firstRoundAfter(uint256)-rule_not_vacuous",
+          "storedBeaconImmutableAcrossNonPostSelectors-hasSig(uint64)-rule_not_vacuous",
+          "storedBeaconImmutableAcrossNonPostSelectors-postedAt(uint64)-rule_not_vacuous",
+          "storedBeaconImmutableAcrossNonPostSelectors-randomnessOf(uint64)-rule_not_vacuous",
+          "storedBeaconImmutableAcrossNonPostSelectors-roundTime(uint64)-rule_not_vacuous"
+        ]
+      }
+    },
+    {
+      "name": "RegistryEvents",
+      "configuration": "formal/conf/RegistryEvents.conf",
+      "timeout_seconds": 3600,
+      "concurrent_rules": 2,
+      "obligations": [
+        {
+          "context": [
+            "envfreeFuncsStaticCheck"
+          ],
+          "methods": [
+            "canonicalPointIsValid(uint128,uint256,uint128,uint256)",
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)",
+            "summarizedRandomness(uint64,uint128,uint256,uint128,uint256)"
+          ]
+        },
+        {
+          "context": [
+            "acceptedPostEmitsBoundTopicsAndLength"
+          ]
+        },
+        {
+          "context": [
+            "duplicateNeverEmitsAtAnyTimestamp"
+          ]
+        },
+        {
+          "context": [
+            "overflowingTimestampCannotWriteOrEmit"
+          ]
+        }
+      ],
+      "sanity": {
+        "rule_not_vacuous": [
+          "acceptedPostEmitsBoundTopicsAndLength-rule_not_vacuous",
+          "duplicateNeverEmitsAtAnyTimestamp-rule_not_vacuous",
+          "overflowingTimestampCannotWriteOrEmit-rule_not_vacuous"
+        ]
+      }
+    },
+    {
+      "name": "ProductionCalldataRejects",
+      "configuration": "formal/conf/ProductionCalldataRejects.conf",
+      "timeout_seconds": 3600,
+      "concurrent_rules": 2,
+      "obligations": [
+        {
+          "context": [
+            "envfreeFuncsStaticCheck"
+          ],
+          "methods": [
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)"
+          ]
+        },
+        {
+          "context": [
+            "unsupportedLengthRejectsAllBytes"
+          ]
+        },
+        {
+          "context": [
+            "zeroRoundRejectsAllBytes"
+          ]
+        }
+      ],
+      "sanity": {
+        "rule_not_vacuous": [
+          "unsupportedLengthRejectsAllBytes-rule_not_vacuous",
+          "zeroRoundRejectsAllBytes-rule_not_vacuous"
+        ]
+      }
+    },
+    {
+      "name": "ProductionCalldataGuards",
+      "configuration": "formal/conf/ProductionCalldataGuards.conf",
+      "timeout_seconds": 3600,
+      "concurrent_rules": 2,
+      "obligations": [
+        {
+          "context": [
+            "envfreeFuncsStaticCheck"
+          ],
+          "methods": [
+            "hasSig(uint64)",
+            "postedAt(uint64)",
+            "randomnessOf(uint64)"
+          ]
+        },
+        {
+          "context": [
+            "duplicateIgnoresAllBytesAndTimestamps"
+          ]
+        },
+        {
+          "context": [
+            "overflowRejectsAllBytes"
+          ]
+        }
+      ],
+      "sanity": {
+        "rule_not_vacuous": [
+          "duplicateIgnoresAllBytesAndTimestamps-rule_not_vacuous",
+          "overflowRejectsAllBytes-rule_not_vacuous"
+        ]
+      }
+    }
+  ]
+}

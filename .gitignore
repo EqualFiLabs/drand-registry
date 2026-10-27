@@ -5,3 +5,9 @@
 /.env.*
 !.env.example
 *.swp
+/.certora-tools/
+/.certora-results/
+/.certora_internal/
+/emv-*/
+/formal/results/
+__pycache__/

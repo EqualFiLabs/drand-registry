@@ -9,6 +9,10 @@ This package separates four evidence classes:
 
 No one class is presented as a substitute for another.
 
+For the complete 17-rule Certora package, toolchain setup, and commands, see
+[Reproduce the Certora proofs](certora/README.md). Runnable proof inputs are
+version controlled; generated output and internal review material remain private.
+
 ## EIP-2537 summaries
 
 The acceptance harness replaces cryptographic precompiles with a constrained relation. It binds the modeled result to the exact submitted proof hash, Round, normalized signature point, mapped message point, production DST, production public key, and production pairing calldata. Its `accepted` branch means all of the following are true:
@@ -102,7 +106,15 @@ Certora constrained acceptance:
 - `duplicateSkipsReplacementVerification`
 - `summarizedRandomnessIsRoundBound`
 
-Every required rule must finish proved with sanity checks enabled. Timeout, unknown, vacuous, or violated results fail the release gate.
+Additional Certora suites:
+
+- RegistryEvents: event topics/length, duplicate silence, and timestamp overflow.
+- ProductionCalldataRejects: unrestricted typed bytes for invalid lengths and round zero.
+- ProductionCalldataGuards: unrestricted typed bytes for duplicates and overflow,
+  with verifier entry required to be unreachable.
+
+The exact complete rule, selector, helper, and non-vacuity inventory is declared
+in `certora/suite.json`. Every required rule must finish proved with sanity checks enabled. Timeout, unknown, vacuous, or violated results fail the release gate.
 
 ## Mutation checks
 

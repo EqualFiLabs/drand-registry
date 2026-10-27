@@ -67,8 +67,10 @@ Private evidence binds selected jobs to exact production source, reviewed proof
 inputs, dependency contents, tool identities, invocation, compiler configuration,
 and before/after input hashes. The complete evidence checker requires the full
 rule inventory, stable exact inputs, non-vacuity and mutation witnesses, matching
-production runtime, and the previously frozen coverage package. New proof sources,
-raw execution artifacts, and internal review materials remain outside version control.
+production runtime, and the previously frozen coverage package. Generated execution
+artifacts and internal review materials remain outside version control.
+Runnable Certora specs, harnesses, configurations, required obligations and the
+runner are version controlled; see [reproduction instructions](../formal/certora/README.md).
 
 ## Assumptions and limits
 
