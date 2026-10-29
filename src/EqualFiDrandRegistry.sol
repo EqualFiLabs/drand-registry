@@ -1,4 +1,11 @@
 // SPDX-License-Identifier: MIT
+// ============================================================================
+//                            EqualFi Drand Registry
+//                                  drand.love
+//                                 equalfi.org
+//                                 EqualFi Labs
+// ============================================================================
+
 pragma solidity 0.8.38;
 
 import { IEqualFiDrandRegistry } from "./interfaces/IEqualFiDrandRegistry.sol";

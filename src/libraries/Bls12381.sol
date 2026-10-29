@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Randamu
+// ============================================================================
+//                            EqualFi Drand Registry
+//                                  drand.love
+//                                 equalfi.org
+//                                 EqualFi Labs
+// ============================================================================
+
 pragma solidity 0.8.38;
 
 // Extracted from randa-mu/bls-solidity at 11af179a8287d978659aae07adb66aa60f64b8a6.
