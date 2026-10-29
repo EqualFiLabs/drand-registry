@@ -5,10 +5,13 @@ required rule/method inventory, and runner for all **17 named Certora rules**.
 No saved result or private input is needed. Generated results, logs, compiler
 scenes, counterexamples, and internal reviews are excluded from version control.
 
-The current inputs target Solidity 0.8.38. The completed fresh-clone replay recorded
-in the [coverage summary](../../docs/verification-summary.md) used Solidity 0.8.30
-at revision `26cc88b8c3387ac100f461203fa5f08a4d45dc1d`. Check out that revision
-to reproduce those historical inputs exactly. A 0.8.38 prover replay is not claimed.
+The current inputs target Solidity 0.8.38. A completed replay at revision
+`e199f7abc87285cc51d29dcfe334ef7ab0627af5` passed all six suites, 17 named rules,
+and 25 non-vacuity witnesses; see the
+[coverage summary](../../docs/verification-summary.md). The earlier fresh-clone
+replay used Solidity 0.8.30 at revision
+`26cc88b8c3387ac100f461203fa5f08a4d45dc1d`. Check out the recorded revision to
+reproduce either set of historical inputs exactly.
 
 ## Clone and toolchain
 
