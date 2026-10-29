@@ -5,6 +5,11 @@ required rule/method inventory, and runner for all **17 named Certora rules**.
 No saved result or private input is needed. Generated results, logs, compiler
 scenes, counterexamples, and internal reviews are excluded from version control.
 
+The current inputs target Solidity 0.8.38. The completed fresh-clone replay recorded
+in the [coverage summary](../../docs/verification-summary.md) used Solidity 0.8.30
+at revision `26cc88b8c3387ac100f461203fa5f08a4d45dc1d`. Check out that revision
+to reproduce those historical inputs exactly. A 0.8.38 prover replay is not claimed.
+
 ## Clone and toolchain
 
 ```bash
@@ -14,7 +19,7 @@ cd drand-registry
 
 Check out the revision containing this package. Linux x86-64 is the reference
 platform. Use Python 3.10, Git, Java 21 for execution, Z3 4.16.0, CVC5 1.4.2,
-and the Solidity 0.8.30 compiler named `solc8.30` on `PATH`. The configurations
+and the Solidity 0.8.38 compiler named `solc8.38` on `PATH`. The configurations
 select Osaka, optimizer 200, and no via-IR. Certora inputs import only the
 repository's own Solidity sources; the Forge-std submodule is needed for the
 separate Foundry/Halmos suites.
@@ -51,17 +56,17 @@ The pinned Python requirements supply the upstream CLI dependencies and the
 external Z3 executable. Check that `install` contains `emv.jar`, `certoraRun.py`,
 `tac_optimizer`, and the other upstream build outputs. Obtain CVC5 from the
 [official 1.4.2 release](https://github.com/cvc5/cvc5/releases/tag/cvc5-1.4.2),
-and Solidity from the [official 0.8.30 release](https://github.com/ethereum/solidity/releases/tag/v0.8.30).
+and Solidity from the [official 0.8.38 release](https://github.com/ethereum/solidity/releases/tag/v0.8.38).
 Verify downloaded checksums. The reference Linux Solidity executable SHA-256 is
-`f3e987dc6ecebd4bd350c48edcbc320b46cf9e3109bd3fc3d88f1acaf4c428f7`.
-Put `solc8.30`, CVC5, Java 21, and the virtual environment's executables on `PATH`:
+`65c3180a336eabb6bdc4bbd49cc405aeb233976964ae6c11fba2a6c8be8f3243`.
+Put `solc8.38`, CVC5, Java 21, and the virtual environment's executables on `PATH`:
 
 ```bash
 export PATH="$CERTORA_LOCAL_ROOT/venv/bin:$PATH"
 java -version
 z3 --version
 cvc5 --version
-solc8.30 --version
+solc8.38 --version
 ```
 
 Source builds can produce different JAR archive bytes. The launcher checks the

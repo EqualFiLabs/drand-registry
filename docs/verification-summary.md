@@ -1,10 +1,33 @@
 # Verification Coverage Summary
 
-Results recorded on 2026-10-27 for production source
+Proof results recorded on 2026-10-27 for production source
 `118a94d2e447055d1a47d1a13488e887aaa4a822`. This expansion changes no
 production Solidity.
 
-## Build identity
+## Compiler 0.8.38 qualification
+
+The current build is pinned to `0.8.38+commit.1835d247` at source revision
+`117219622134d1445b782646547732f469f06540`, with Osaka, optimizer 200 and no
+via-IR. The upgrade addresses the compiler version affected by
+[SOL-2026-7](https://docs.soliditylang.org/en/latest/bugs.html).
+
+On 2026-10-28, the rebuild and all 37 Foundry tests passed, with 1,024 runs for
+each fuzz property. The production ABI and all 6,405 deployed executable bytes
+before CBOR metadata are identical to the recorded 0.8.30 build. The full runtime
+remains 6,458 bytes, with the new Keccak-256:
+`0x20e842bca3271556ef7ad761266b069e04725565bba4553d28d10f5decca8490`.
+
+Read-only Robinhood Mainnet creation and posting simulations also passed at block
+`100510010`. Both signature transports and a fresh official Quicknet
+proof were accepted; wrong-round, malformed-length and altered-signature inputs
+reverted. These were simulations, not mined deployments or transaction receipts.
+
+The formal tools were not rerun for this compiler upgrade. The formal results
+below retain their original source, compiler and runtime identities; identical
+production executable bytes are a separate comparison, not a new prover result.
+Current runnable Certora inputs and their source manifest target 0.8.38.
+
+## Historical 0.8.30 build identity
 
 - Production deployed-runtime Keccak-256:
   `0xa8cf3e27cfd22d31583ec23233283363ea913bf31b0db1bf92aacaa906082e65`.
