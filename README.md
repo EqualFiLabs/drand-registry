@@ -6,7 +6,7 @@ The contract is shared infrastructure. It contains no Lottery-specific logic, ow
 
 ## Status
 
-The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. The [formal report](docs/formal-verification.md) records passing gates for a historical revision. The local BLS helper extraction changes source paths, metadata, and proof harnesses; it requires fresh CI and formal release evidence. Target-chain conformance and deployed-bytecode matching remain separate requirements.
+The Registry implementation is deployable and permanently caches the first valid proof submitted for each Quicknet round. The [formal report](docs/formal-verification.md) records passing gates for a historical revision. The [coverage summary](docs/verification-summary.md) records the subsequent verification expansion for the extracted local BLS helpers at the current production revision, including its proof assumptions. Fresh CI, target-chain conformance, and deployed-bytecode matching remain separate requirements.
 
 ## Development
 
