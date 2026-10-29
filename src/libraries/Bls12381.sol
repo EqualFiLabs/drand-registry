@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2025 Randamu
-pragma solidity 0.8.30;
+pragma solidity 0.8.38;
 
 // Extracted from randa-mu/bls-solidity at 11af179a8287d978659aae07adb66aa60f64b8a6.
 // See docs/dependencies.md and licenses/bls-solidity-MIT.txt for provenance and license.
