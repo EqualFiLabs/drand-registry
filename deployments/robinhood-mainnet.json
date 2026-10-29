@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "contract": "EqualFiDrandRegistry",
+  "network": "Robinhood Mainnet",
+  "chainId": 4663,
+  "address": "0xB1a30ff19243Af135003E541769dD520DA1acC2B",
+  "deployment": {
+    "transactionHash": "0x055726c4e9ccad7b57e89d76956176e0328e3d1fbc57f414f82a9b6a713d9e78",
+    "blockNumber": 101161759,
+    "blockHash": "0xdf3edfe0d6bcdd4c990cf07dff79901bded21da782c10fc32ac2de1fef272805",
+    "timestamp": "2026-10-29T19:56:14+00:00",
+    "deployer": "0x4CF8e4D37F561815F208565a5b6Ca8a85b143205",
+    "nonce": 377,
+    "status": "success",
+    "gasUsed": 1458802,
+    "effectiveGasPriceWei": "20140000",
+    "executionGasFeeWei": "29380272280000",
+    "valueWei": "0",
+    "constructorArguments": [],
+    "encodedConstructorArguments": "0x"
+  },
+  "source": {
+    "repository": "https://github.com/EqualFiLabs/drand-registry",
+    "commit": "f530316ae1bb4f22e3974879fb5f9330b046cc76"
+  },
+  "compiler": {
+    "version": "0.8.38+commit.1835d247",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "osaka",
+    "viaIR": false,
+    "bytecodeHash": "ipfs",
+    "cborMetadata": true
+  },
+  "bytecode": {
+    "creationKeccak256": "0x05f9b7d15ca48449a6ca8e9056199ce9069f14b31df90c3273be0c9b3436addb",
+    "runtimeKeccak256": "0x3920a29fca45c90027fc2e69f362a9242b6f64b023016422c6f2f3150957a1c7",
+    "runtimeBytes": 6458,
+    "executableKeccak256": "0x32373c245ca75f97555d4a966f52bf68bb31a65bb6028ee7df0daf69c1f2a747",
+    "executableBytes": 6405
+  },
+  "architecture": {
+    "upgradeable": false,
+    "administrator": null,
+    "posting": "permissionless",
+    "linkedLibraries": {}
+  },
+  "quicknet": {
+    "chainHash": "52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971",
+    "scheme": "bls-unchained-g1-rfc9380",
+    "genesisTime": 1692803367,
+    "periodSeconds": 3,
+    "signatureTransportBytes": [
+      48,
+      96
+    ],
+    "randomnessDerivation": "keccak256(canonicalG1_96Bytes || round_uint64_bigEndian)"
+  },
+  "explorers": {
+    "etherscan": {
+      "url": "https://robin.etherscan.io/address/0xB1a30ff19243Af135003E541769dD520DA1acC2B#code",
+      "sourceVerified": true
+    },
+    "blockscout": {
+      "url": "https://robinhoodchain.blockscout.com/address/0xB1a30ff19243Af135003E541769dD520DA1acC2B?tab=contract",
+      "sourceVerified": true
+    }
+  },
+  "liveValidation": {
+    "blockNumber": 101164226,
+    "blockHash": "0x6e1655fb93a9f8755cf76a1d43a2e9d2e52a329ccc25de9c7c1ca593fd686101",
+    "runtimeMatchesBuild": true,
+    "futureRoundSelection": {
+      "selectedAtUnix": 1793303774,
+      "selectionBlock": 101161761,
+      "cutoff": 1793303782,
+      "rounds": [
+        33500140,
+        33500141
+      ]
+    },
+    "beaconPosts": [
+      {
+        "round": 33500140,
+        "transportBytes": 48,
+        "randomness": "0x4e5dd2af532eee1402525ed2b4ee2526404f69f3e51baab4ecc980ffcb70dd09",
+        "postedAt": 1793303785,
+        "transactionHash": "0x9719bd5c13158363e48f322374d4ee37b0fdb8ce62599184868e6d77c3e85e10",
+        "blockNumber": 101161873,
+        "gasUsed": 291720,
+        "scheduledAt": 1793303784
+      },
+      {
+        "round": 33500141,
+        "transportBytes": 96,
+        "randomness": "0x4bd03cc5ee02bb85ecd725835cc1f2b808dd550a56716bb8c9edd18f76a6b301",
+        "postedAt": 1793303820,
+        "transactionHash": "0x8d516fefeb4d97287cf28983ef71347583bbeed8bd8a6dd73ffe3a2d60f4e434",
+        "blockNumber": 101162219,
+        "gasUsed": 206983,
+        "scheduledAt": 1793303787
+      }
+    ],
+    "duplicatePost": {
+      "transactionHash": "0xa5eef8677f00c5bae4ef17d45ab48542f2b08e4540f0f623c105a3c653e01ffa",
+      "blockNumber": 101162241,
+      "cacheAndTimestampUnchanged": true,
+      "emittedNewBeacon": false
+    },
+    "rejectedEthCalls": [
+      "wrong-round",
+      "malformed-length",
+      "altered-signature"
+    ],
+    "rejectedRound": 33500142,
+    "rejectedRoundRemainsAbsent": true,
+    "scope": "Mined deployment and beacon posts, cached-value readback, and read-only invalid-proof rejection on Mainnet; not a new formal verification run."
+  },
+  "localForkValidation": {
+    "blockNumber": 101164226,
+    "tool": "anvil Version: 1.8.2-nightly",
+    "runtimeAndCacheReadback": true,
+    "bothSignatureTransportsVerifyWithEmptyLocalCache": true,
+    "scope": "Read-only fork checks plus runtime copied to a separate local address to exercise verification with an empty cache; no additional Mainnet transactions."
+  }
+}
