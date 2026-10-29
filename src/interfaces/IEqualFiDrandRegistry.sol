@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity 0.8.38;
 
 /// @title EqualFi drand Registry interface
 /// @notice Stable consumer surface for verified drand Quicknet beacons.

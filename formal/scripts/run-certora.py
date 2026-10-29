@@ -120,7 +120,7 @@ def tool_hashes(env):
     install = Path(env["CERTORA_LOCAL_ROOT"]) / "install"
     files = [Path(sys.executable).resolve(), install / "emv.jar", install / "tac_optimizer"]
     files += list(install.rglob("*.py"))
-    for tool in ["java", "z3", "cvc5", "solc8.30"]:
+    for tool in ["java", "z3", "cvc5", "solc8.38"]:
         path = shutil.which(tool, path=env["PATH"])
         if path is None:
             raise ValueError(f"Required executable missing: {tool}")
@@ -190,7 +190,7 @@ def main():
         text=True).strip()
     record["tools"] = {}
     for tool, pattern in [("java", r'"21\.'), ("z3", r'\b4\.16\.0\b'),
-                          ("cvc5", r'\b1\.4\.2\b'), ("solc8.30", r'0\.8\.30\+commit\.73712a01')]:
+                          ("cvc5", r'\b1\.4\.2\b'), ("solc8.38", r'0\.8\.38\+commit\.1835d247')]:
         version = subprocess.check_output([tool, "-version" if tool == "java" else "--version"],
                                           text=True, stderr=subprocess.STDOUT, env=env)
         if not re.search(pattern, version):

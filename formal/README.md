@@ -1,5 +1,8 @@
 # Registry Formal Verification
 
+Current inputs target Solidity 0.8.38. Recorded 0.8.30 results retain their
+original identities; see the [compiler qualification summary](../docs/verification-summary.md#compiler-0838-qualification).
+
 This package separates four evidence classes:
 
 1. Halmos proves complete-domain arithmetic, exact production transformation helpers, and the isolated first-write state transition.
@@ -40,7 +43,7 @@ Production code rejects failed calls, short or long return data, and pairing res
 
 The proof trusts:
 
-- correctness of the Solidity 0.8.30 compiler with the pinned optimizer and Osaka target;
+- correctness of the pinned Solidity 0.8.38 compiler with the pinned optimizer and Osaka target;
 - correctness of EVM execution and the target client's EIP-198/EIP-2537 implementations;
 - SHA-256, Keccak-256, BLS12-381, RFC 9380, and standard cryptographic assumptions;
 - authenticity of the compiled Quicknet chain identity, public key, DST, genesis timestamp, and period; and

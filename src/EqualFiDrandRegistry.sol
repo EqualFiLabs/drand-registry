@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity 0.8.38;
 
 import { IEqualFiDrandRegistry } from "./interfaces/IEqualFiDrandRegistry.sol";
 import { QuicknetVerifier } from "./libraries/QuicknetVerifier.sol";

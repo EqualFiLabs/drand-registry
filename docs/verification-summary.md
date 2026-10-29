@@ -1,10 +1,68 @@
 # Verification Coverage Summary
 
-Results recorded on 2026-10-27 for production source
-`118a94d2e447055d1a47d1a13488e887aaa4a822`. This expansion changes no
-production Solidity.
+This summary records the completed Solidity 0.8.38 formal replay and the
+historical 0.8.30 coverage expansion. Each result retains its source and build
+identity.
 
-## Build identity
+## Compiler 0.8.38 qualification
+
+The current build is pinned to `0.8.38+commit.1835d247` at source revision
+`117219622134d1445b782646547732f469f06540`, with Osaka, optimizer 200 and no
+via-IR. The upgrade addresses the compiler version affected by
+[SOL-2026-7](https://docs.soliditylang.org/en/latest/bugs.html).
+
+On 2026-10-28, the rebuild and all 37 Foundry tests passed, with 1,024 runs for
+each fuzz property. The production ABI and all 6,405 deployed executable bytes
+before CBOR metadata are identical to the recorded 0.8.30 build. The full runtime
+remains 6,458 bytes, with the new Keccak-256:
+`0x20e842bca3271556ef7ad761266b069e04725565bba4553d28d10f5decca8490`.
+
+Read-only Robinhood Mainnet creation and posting simulations also passed at block
+`100510010`. Both signature transports and a fresh official Quicknet
+proof were accepted; wrong-round, malformed-length and altered-signature inputs
+reverted. These were simulations, not mined deployments or transaction receipts.
+
+## Compiler 0.8.38 formal replay
+
+On 2026-10-28, the full remote formal replay completed for committed proof inputs
+`e199f7abc87285cc51d29dcfe334ef7ab0627af5`, with production source reference
+`117219622134d1445b782646547732f469f06540` and the 0.8.38 runtime recorded above.
+The toolchain used Foundry 1.7.1, Halmos 0.3.3, Z3 API 4.12.6, external Z3 4.16.0,
+CVC5 1.4.2, self-hosted Certora 8.20.2 revision
+`f5f77783430449791186f7812ebd53addf22cabd`, and Java 21.0.12.1.
+
+| Check | Result |
+| --- | --- |
+| Halmos universal properties | 60 passed |
+| Deliberate production mutations | All 12 detected |
+| Positive-domain reachability checks | 12 witnessed |
+| Certora named rules | All 17 passed across six suites |
+| Certora non-vacuity witnesses | All 25 witnessed |
+| Native-event observer checks | 7 passed |
+| Root-partition checks | 3 passed |
+
+Every selected universal Halmos result has zero counterexamples, unresolved paths,
+and bounded loops. Every mutation and reachability control has an engine-validated
+symbolic counterexample. The map-offset mutation control uses a narrowly appended
+wrapper calling the unchanged property with point limbs taken from a saved symbolic
+counterexample; it counts once as an existential mutation control, rather than
+additional universal or concrete EVM coverage. All other proof domains, bounds,
+models and assumptions match the historical package described below.
+
+The private evidence gate verified the exact target source and runtime, complete
+rule inventory, frozen policies, before/after proof and dependency hashes, tool
+identities, non-vacuity, and exclusions for interrupted or superseded attempts.
+Installed Python/native module hashes captured after execution began are
+supplemental evidence; executable and per-job model hashes were frozen before
+execution. Raw results and review materials remain private. Runnable Certora
+inputs and their source manifest target 0.8.38. This rerun does not add hosted CI,
+target-client conformance, deployment, signing, or downstream-consumer evidence.
+
+## Historical 0.8.30 build identity
+
+The historical results were recorded on 2026-10-27 for production source
+`118a94d2e447055d1a47d1a13488e887aaa4a822`. The coverage expansion changed no
+production Solidity.
 
 - Production deployed-runtime Keccak-256:
   `0xa8cf3e27cfd22d31583ec23233283363ea913bf31b0db1bf92aacaa906082e65`.
@@ -15,7 +73,7 @@ production Solidity.
   CVC5 1.4.2, self-hosted Certora revision
   `f5f77783430449791186f7812ebd53addf22cabd`, Java 21.0.12.1.
 
-## Results
+## Historical 0.8.30 results
 
 | Check | Result |
 | --- | --- |

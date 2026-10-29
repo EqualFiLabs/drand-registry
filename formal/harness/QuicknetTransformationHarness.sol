@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.30;
+pragma solidity 0.8.38;
 
 import { Bls12381 } from "../../src/libraries/Bls12381.sol";
 import { QuicknetVerifier } from "../../src/libraries/QuicknetVerifier.sol";
